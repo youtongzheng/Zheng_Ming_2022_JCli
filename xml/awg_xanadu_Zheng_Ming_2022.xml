@@ -1,0 +1,3768 @@
+<?xml version="1.0"?>
+
+<!-- GFDL Model Development Team (MDT) documentation: http://cobweb.gfdl.noaa.gov/~niz/mdt/ -->
+<!-- GFDL MDT Atmosphere Working Group (AWG) documentation: http://cobweb.gfdl.noaa.gov/~cjg/awg/ -->
+
+<!-- Model configurations in support of MDT Atmosphere Working Group (AWG), xanadu revision -->
+
+<!-- QUICK START GUIDE:
+
+# To checkout this xml (you should have done this already)
+# .. module load fre/bronx-19
+# .. module load git
+# .. mkdir -p $home/awg/2021.02
+# .. cd $home/awg/2021.02
+# .. git clone -b AM4_FMS2021.03 http://gitlab.gfdl.noaa.gov/mdt/xml.git xml_FMS2021.03
+# .. cd xml_FMS2021.03
+
+# Change YOURGROUPLETTER to your group, such as f, w, o...
+  <property name="GFDL_YGL" value="gfdl_YOURGROUPLETTER"/>
+# If on orion, change YOURorionGROUP to your group, such at noaa-hpc, gfdlhires, gfdlscr...
+  <property name="ORION_YGL" value="YOURorionGROUP"/>
+
+# To check out source code and compile on GAEA:
+# .. module load fre/bronx-18
+# .. fremake -x awg_xanadu.xml -p ncrc3.intel -t openmp cm4p12_FMS2021.03
+
+# To run regression test:
+# .. frerun -s -r rts -x awg_xanadu.xml -p ncrc3.intel -t openmp c96L33_am4p0_cmip6Diag
+
+# To run a complete experiment (with automated database entry if MDBIswitch in "on"):
+# .. frerun -x awg_xanadu.xml -p ncrc3.intel -t openmp c96L33_am4p0_cmip6Diag
+
+# To run fredb after an experiment is finished to manually add it to the database:
+# .. fredb-pp -x awg_xanadu.xml -p gfdl.ncrc3-intel -t openmp c96L33_am4p0_cmip6Diag
+
+
+# To check out source code and compile on ORION:
+# .. module load fre/test
+# .. fremake -x awg_xanadu.xml -p orion.intel20 -t openmp cm4p12_FMS2021.03
+
+# To run regression test:
+# .. frerun -s -r rts -x awg_xanadu.xml -p orion.intel20 -t openmp c96L33_am4p0_cmip6Diag
+
+# To run a complete experiment (with automated database entry if MDBIswitch in "on"):
+# .. frerun -x awg_xanadu.xml -p orion.intel20 -t openmp c96L33_am4p0_cmip6Diag
+
+
+
+     LIST OF AUTOMATED TESTS TO BE PERFORMED WITH JENNY
+     Notes: Only fremake and frerun are currently supported.
+            FRE commands listed should NOT include -s option to
+            automatically sumbit jobs.
+
+! Reference results for automated tests. Jenny will verify the sha1 checksum of of the
+! diag-integral.out ascii file against the checksums listed below. The checksum
+! can be computed with the 'taverage' AWG utility.
+On gaea c4 ref> c96L33_am4p0/ncrc4.intel-prod-openmp/0m8d                       aa5b334386f7037c49cd0c934fb6e7d2b95b3bd7
+ref> c96L33_am4p0_2010climo/ncrc4.intel-prod-openmp/0m8d             0a0dc025f7cf8b276bc4b98b9e1b3c8ad4547837
+ref> c96L33_am4p0_1850climo/ncrc4.intel-prod-openmp/0m8d             bf6b378a1ee92cde053e369a03b3d6fc0ba2cfe3
+
+ref> c96L33_am4p0_cmip6Diag/ncrc4.intel-prod-openmp/0m8d             aa5b334386f7037c49cd0c934fb6e7d2b95b3bd7
+-->
+
+<experimentSuite rtsVersion="4" xmlns:xi="http://www.w3.org/2003/XInclude">
+
+  <property name="GFDL_YGL" value="gfdl_m"/> <!-- Please make sure to change "YOURGROUPLETTER" to your group, such as b, f, g, m, o... -->
+  <property name="ORION_YGL" value="gfdlhires"/> 
+  <property name='RELEASE' value="2021.02"/>
+  <property name="MOM6_DATE" value="om4_v1.0.1"/>                  <!-- git tag date for MOM6 source code -->
+  <property name="MOM6_GIT_TAG" value="dev/gfdl/2018.04.06"/>  <!-- git tag for MOM6 source code -->
+  <property name="AWG_GIT_TAG" value="2021.02"/>             <!-- git tag for AWG source code -->
+  <property name="FMS_GIT_TAG" value="2021.03"/>
+  <property name="AWG_VERSION" value="$(RELEASE)"/>                 <!-- AWG source code version -->
+  <property name="FRE_STEM" value="awg/$(RELEASE)"/>
+  <property name="FRE_VERSION" value="bronx-19"/>
+  <property name="FRE_VERSION_ORION" value="bronx-19"/>
+  <property name="ANALYSIS_SWITCH" value="on"/>
+  <property name="TS_ANALYSIS_SWITCH" value="off"/>
+  <property name="ANALYSIS_ESM_SWITCH" value="off"/>
+  <property name="MDBIswitch" value="off"/>                        <!-- on/off switch for MDBI database -->
+  <property name="ProjectID" value="AWG"/>                         <!-- database top level -->
+
+  <property name="AWG_INPUT_HOME_GAEA" value="$HOME/$(FRE_STEM)/xml_FMS$(FMS_GIT_TAG)/awg_include"/>
+  <property name="AWG_INPUT_HOME_GFDL" value="/home/$USER/ncrc/$(FRE_STEM)/xml_FMS$(FMS_GIT_TAG)/awg_include"/>
+  <property name="REFERENCE_ROOT" value="/lustre/f2/dev/Thomas.Robinson/reference_files/$(RELEASE)/cmip6"/>
+
+<!--
+GFDL FAIR USE POLICY
+
+GFDL recognizes the essential nature of collaboration in the scientific
+enterprise, including the importance of novel application and analysis of our
+models. In order to maximize mutual benefit from collaboration, the use of
+experimental GFDL models** should be done in a manner that ensures that
+individuals involved in model development receive proper credit for their
+work; in order to minimize the potential for misapplication of experimental
+models, collaborations should actively engage model developers. Publication of
+results using experimental GFDL models should be done in consultation with
+scientists that participated in the model development. Consultation with GFDL
+model developers should occur before submission of publications based on
+experimental GFDL models, and should include agreement on the appropriate level
+of acknowledgment, co-authorship and participation by the model developers.
+Since experimental models have not been thoroughly vetted, experimental GFDL
+models and their output should be distributed only after consultation with the
+developers of the model. After a GFDL model has been described in a
+peer-reviewed publication it is no longer experimental, and results based on
+the model should cite the publication(s) describing the model.
+
+** "Experimental GFDL models" refers to models (e.g., a coupled climate model),
+model components (e.g., parameterization schemes), model configurations (e.g.,
+the specific arrangement and parameter settings of model components) arising
+from model development efforts at GFDL, but whose formulation and configuration
+have not yet been documented in the peer-reviewed literature, as well as outputs
+from integrations with these models.
+-->
+
+<!--====================-->
+<!--= AMIP EXPERIMENTS =-->
+<!--====================-->
+
+<!--
+AMIP simulations are configured to start in 1980 with the first year being a
+spin-up year. Postprocessing and analysis are performed starting in 1981. The
+length of the simulation and analysis period can be controlled by changing
+properties below.
+-->
+
+  <!-- make sure to change current_date in coupler_nml accordingly -->
+  <property name="EXP_AMIP_START" value="2009"/>
+  <property name="EXP_AMIP_END"   value="2014"/>
+  <property name="EXP_AMIP_LEN"   value="6"/>
+  <property name="ANA_AMIP_START" value="2010"/>
+  <property name="ANA_AMIP_END"   value="2014"/>
+  <property name="ANA_AMIP_LEN"   value="5yr"/>
+
+  <property name="CVDP_startyear" value="$(EXP_AMIP_START)"/>
+
+  <!-- Post-processing chunk length -->
+  <!-- ANA_AMIP_LEN must be an integer multiple of PP_AMIP_CHUNK -->
+  <property name="PP_AMIP_CHUNK" value="5yr"/>
+
+<!--=====================================-->
+<!--= RFP, CESS SENSITIVITY EXPERIMENTS =-->
+<!--=====================================-->
+
+<!--
+Experiments to compute RFP (Radiative Flux Perturbation) and Cess sensitivity
+were originally configured by Larry Horowitz. Experiments are configured to
+start in year 0001, postprocessing and analysis are performed starting from
+the second year (0002). The length of the simulation and analysis period can
+be controlled by changing properties below.
+-->
+
+  <!-- make sure to change current_date in coupler_nml accordingly -->
+  <property name="EXP_CLIMO_START" value="0001"/>
+  <property name="EXP_CLIMO_END"   value="0011"/>
+  <property name="EXP_CLIMO_LEN"   value="11"/>
+  <property name="ANA_CLIMO_START" value="0002"/>
+  <property name="ANA_CLIMO_END"   value="0011"/>
+  <property name="ANA_CLIMO_LEN"   value="10yr"/>
+  <property name="PP_CLIMO_CHUNK"  value="5yr"/>
+
+
+  <property name="EXP_CCLIMO_START" value="0001"/>
+  <property name="EXP_CCLIMO_END"   value="0140"/>
+  <property name="EXP_CCLIMO_LEN"   value="140"/>
+  <property name="ANA_CCLIMO_START" value="0001"/>
+  <property name="ANA_CCLIMO_END"   value="0140"/>
+  <property name="ANA_CCLIMO_LEN"   value="20yr"/>
+  <property name="PP_CCLIMO_CHUNK"  value="5yr"/>
+  <property name="PP_CCLIMO_CHUNK_B" value="20yr"/>
+  <property name="PP_OCEAN_CHUNK"   value="5yr"/> 
+  <property name="PP_OCEAN_CHUNK_B" value="20yr"/> 
+  <property name="ANA_CCLIMO_BQX"   value="0020"/>
+
+  <property name="CVDP_startyear_climo" value="$(EXP_CLIMO_START)"/>
+
+<!--=================-->
+<!--= CHANGING NPES =-->
+<!--=================-->
+
+<!--
+This xml includes a number of predefined options for the number of PEs.
+Changing the number of PEs can be accomplished by simply
+modifying 'npes' and segment 'runTime' in the xml <production> block:
+
+    <production simTime="$(EXP_AMIP_LEN)" units="years" npes="864" runTime="16:00:00">
+      <segment simTime="12" units="months" runTime="1:30:00"/>
+    </production>
+
+Choosing a particular PE number is a balancing act. The higher npes,
+the faster the model throughput, but also the lower the model efficiency
+(i.e. the overall simulation will cost more in terms of core hours).
+
+Available options for c96L32:
+"""""""""""""""""""""""""""""
+
+  +========+======================+======================+
+  |        |  Suggested run time for 12 month segment    |
+  |  npes  |    am4g10                                   |
+  +========+=============================================+
+  |   432  |    02:30:00                                 |
+  |** 864**|    01:30:00                                 |
+  |  1152  |    01:10:00                                 |
+  |  1728  |    00:50:00                                 |
+  |  2304  |    00:45:00                                 |
+  |  3456  |    00:40:00                                 |
+  |  4608  |    00:32:00                                 |
+  +========+======================+======================+
+
+**Note:** default settings are highlighted in **bold**. Suggested
+run time values may need to be adjusted for your specific
+configuration.
+
+-->
+
+  <setup>
+
+<!-- MDBI -->
+    <fmsRelease>fmsversion</fmsRelease>
+<!-- /MDBI -->
+
+    <platform name="ncrc3.intel">
+      <xi:include xpointer="xpointer(//setup/platform[@name='ncrc3.intel18']/node())" />
+    </platform>
+    <platform name="ncrc4.intel">
+      <xi:include xpointer="xpointer(//setup/platform[@name='ncrc4.intel18']/node())" />
+    </platform>
+    <platform name="gfdl.ncrc4-intel">
+      <xi:include xpointer="xpointer(//setup/platform[@name='gfdl.ncrc3-intel18']/node())" />
+    </platform>
+
+    <platform name="ncrc3.intel18">
+      <freVersion>$(FRE_VERSION)</freVersion>
+      <compiler type="intel" version="18.0.6.288" />
+<!-- Please make sure to change "YOURGROUPLETTER" to your group, such as b, f, g, m, o... -->
+      <project>$(GFDL_YGL)</project>
+      <directory stem="$(FRE_STEM)">
+         <src>$HOME/$(stem)/$(name)/src</src>
+         <scripts>$HOME/$(stem)/xml_FMS$(FMS_GIT_TAG)/scripts/$(platform)-$(target)</scripts>
+         <stdout>$SCRATCH/$USER/$(stem)/$(name)/$(platform)-$(target)/stdout</stdout>
+      </directory>
+      <property name="F2003_FLAGS"         value=" -DINTERNAL_FILE_NML "/>
+      <property name="AWG_INPUT_HOME"      value="$(AWG_INPUT_HOME_GAEA)"/>
+      <property name="AWG_ARCHIVE_ROOT"    value="$PDATA/gfdl/gfdl_M/cjg/archive/mdt"/>
+      <property name="CMIP6_ARCHIVE_ROOT"   value="$PDATA/gfdl/cmip6/datasets"/>
+      <property name="H1G_ARCHIVE_ROOT"    value="$PDATA/gfdl/gfdl_M/Huan.Guo/archive/mdt"/>
+      <property name="NCORE_PER_NODE"      value="32"/>
+      <csh><![CDATA[
+        module load git
+#
+       setenv KMP_STACKSIZE 512m
+       setenv NC_BLKSZ 1M
+       setenv OMP_SCHEDULE "static,1"
+
+      ]]></csh>
+    </platform>
+
+    <platform name="gfdl.ncrc3-intel18">
+      <freVersion>$(FRE_VERSION)</freVersion>
+      <directory stem="$(FRE_STEM)">
+<!-- MDBI requires these to be listed in order to show the path under "Platform Environment" -->
+        <archive>$ARCHIVE/$(stem)/$(name)/$(platform)-$(target)</archive>
+        <analysis>/nbhome/$USER/$(stem)/$(name)</analysis>
+<!-- /MDBI -->
+      </directory>
+      <property name="F2003_FLAGS"         value="-DINTERNAL_FILE_NML "/>
+      <property name="AWG_INPUT_HOME"      value="$(AWG_INPUT_HOME_GFDL)"/>
+      <property name="AWG_ARCHIVE_ROOT"    value="/archive/cjg/mdt"/>
+      <property name="CMIP6_ARCHIVE_ROOT"   value="/archive/oar.gfdl.cmip6/datasets"/>
+      <property name="H1G_ARCHIVE_ROOT"    value="/archive/h1g/mdt"/>
+      <property name="NCORE_PER_NODE"      value="1"/>
+      <csh><![CDATA[
+        module load git
+        ]]>
+      </csh>
+    </platform>
+
+    <platform name="ncrc4.intel18">
+      <freVersion>$(FRE_VERSION)</freVersion>
+      <compiler type="intel" version="18.0.6.288" />
+<!-- Please make sure to change "YOURGROUPLETTER" to your group, such as b, f, g, m, o... -->
+      <project>$(GFDL_YGL)</project>
+      <directory stem="$(FRE_STEM)">
+         <src>$HOME/$(stem)/$(name)/src</src>
+         <scripts>$HOME/$(stem)/xml_FMS$(FMS_GIT_TAG)/scripts/$(platform)-$(target)</scripts>
+         <stdout>$SCRATCH/$USER/$(stem)/$(name)/$(platform)-$(target)/stdout</stdout>
+      </directory>
+      <property name="F2003_FLAGS"         value=" -DINTERNAL_FILE_NML "/>
+      <property name="AWG_INPUT_HOME"      value="$(AWG_INPUT_HOME_GAEA)"/>
+      <property name="AWG_ARCHIVE_ROOT"    value="$PDATA/gfdl/gfdl_M/cjg/archive/mdt"/>
+      <property name="CMIP6_ARCHIVE_ROOT"   value="$PDATA/gfdl/cmip6/datasets"/>
+      <property name="H1G_ARCHIVE_ROOT"    value="$PDATA/gfdl/gfdl_M/Huan.Guo/archive/mdt"/>
+      <property name="NCORE_PER_NODE"      value="36"/>
+      <csh><![CDATA[
+        module load git
+#
+       setenv KMP_STACKSIZE 512m
+       setenv NC_BLKSZ 1M
+       setenv OMP_SCHEDULE "static,1"
+
+      ]]></csh>
+    </platform>
+    <platform name="gfdl.ncrc4-intel18">
+      <freVersion>$(FRE_VERSION)</freVersion>
+      <directory stem="$(FRE_STEM)">
+<!-- MDBI requires these to be listed in order to show the path under "Platform Environment" -->
+        <archive>$ARCHIVE/$(stem)/$(name)/$(platform)-$(target)</archive>
+        <analysis>/nbhome/$USER/$(stem)/$(name)</analysis>
+<!-- /MDBI -->
+      </directory>
+      <property name="F2003_FLAGS"         value="-DINTERNAL_FILE_NML "/>
+      <property name="AWG_INPUT_HOME"      value="$(AWG_INPUT_HOME_GFDL)"/>
+      <property name="AWG_ARCHIVE_ROOT"    value="/archive/cjg/mdt"/>
+      <property name="CMIP6_ARCHIVE_ROOT"   value="/archive/oar.gfdl.cmip6/datasets"/>
+      <property name="H1G_ARCHIVE_ROOT"    value="/archive/h1g/mdt"/>
+      <property name="NCORE_PER_NODE"      value="1"/>
+      <csh><![CDATA[
+        module load git
+        ]]>
+      </csh>
+    </platform>
+
+<platform name="ncrc3.intel19">
+      <freVersion>$(FRE_VERSION)</freVersion>
+      <compiler type="intel" version="19.0.5.281" />
+<!-- Please make sure to change "YOURGROUPLETTER" to your group, such as b, f, g, m, o... -->
+      <project>$(GFDL_YGL)</project>
+      <directory stem="$(FRE_STEM)">
+         <src>$HOME/$(stem)/$(name)/src</src>
+         <scripts>$HOME/$(stem)/xml_FMS$(FMS_GIT_TAG)/scripts/$(platform)-$(target)</scripts>
+         <stdout>$SCRATCH/$USER/$(stem)/$(name)/$(platform)-$(target)/stdout</stdout>
+      </directory>
+      <property name="F2003_FLAGS"         value=" -DINTERNAL_FILE_NML "/>
+      <property name="AWG_INPUT_HOME"      value="$(AWG_INPUT_HOME_GAEA)"/>
+      <property name="AWG_ARCHIVE_ROOT"    value="$PDATA/gfdl/gfdl_M/cjg/archive/mdt"/>
+      <property name="CMIP6_ARCHIVE_ROOT"   value="$PDATA/gfdl/cmip6/datasets"/>
+      <property name="H1G_ARCHIVE_ROOT"    value="$PDATA/gfdl/gfdl_M/Huan.Guo/archive/mdt"/>
+      <property name="NCORE_PER_NODE"      value="32"/>
+      <csh><![CDATA[
+        module load git
+#
+       setenv KMP_STACKSIZE 512m
+       setenv NC_BLKSZ 1M
+       setenv OMP_SCHEDULE "static,1"
+
+      ]]></csh>
+    </platform>
+
+    <platform name="gfdl.ncrc3-intel19">
+      <freVersion>$(FRE_VERSION)</freVersion>
+      <directory stem="$(FRE_STEM)">
+<!-- MDBI requires these to be listed in order to show the path under "Platform Environment" -->
+        <archive>$ARCHIVE/$(stem)/$(name)/$(platform)-$(target)</archive>
+        <analysis>/nbhome/$USER/$(stem)/$(name)</analysis>
+<!-- /MDBI -->
+      </directory>
+      <property name="F2003_FLAGS"         value="-DINTERNAL_FILE_NML "/>
+      <property name="AWG_INPUT_HOME"      value="$(AWG_INPUT_HOME_GFDL)"/>
+      <property name="AWG_ARCHIVE_ROOT"    value="/archive/cjg/mdt"/>
+      <property name="CMIP6_ARCHIVE_ROOT"   value="/archive/oar.gfdl.cmip6/datasets"/>
+      <property name="H1G_ARCHIVE_ROOT"    value="/archive/h1g/mdt"/>
+      <property name="NCORE_PER_NODE"      value="1"/>
+      <csh><![CDATA[
+        module load git
+        ]]>
+      </csh>
+    </platform>
+
+
+
+<platform name="ncrc4.intel19">
+      <freVersion>$(FRE_VERSION)</freVersion>
+      <compiler type="intel" version="19.0.5.281" />
+<!-- Please make sure to change "YOURGROUPLETTER" to your group, such as b, f, g, m, o... -->
+      <project>$(GFDL_YGL)</project>
+      <directory stem="$(FRE_STEM)">
+         <src>$HOME/$(stem)/$(name)/src</src>
+         <scripts>$HOME/$(stem)/xml_FMS$(FMS_GIT_TAG)/scripts/$(platform)-$(target)</scripts>
+         <stdout>$SCRATCH/$USER/$(stem)/$(name)/$(platform)-$(target)/stdout</stdout>
+      </directory>
+      <property name="F2003_FLAGS"         value=" -DINTERNAL_FILE_NML "/>
+      <property name="AWG_INPUT_HOME"      value="$(AWG_INPUT_HOME_GAEA)"/>
+      <property name="AWG_ARCHIVE_ROOT"    value="$PDATA/gfdl/gfdl_M/cjg/archive/mdt"/>
+      <property name="CMIP6_ARCHIVE_ROOT"   value="$PDATA/gfdl/cmip6/datasets"/>
+      <property name="H1G_ARCHIVE_ROOT"    value="$PDATA/gfdl/gfdl_M/Huan.Guo/archive/mdt"/>
+      <property name="NCORE_PER_NODE"      value="36"/>
+      <csh><![CDATA[
+        module load git
+#
+       setenv KMP_STACKSIZE 512m
+       setenv NC_BLKSZ 1M
+       setenv OMP_SCHEDULE "static,1"
+
+      ]]></csh>
+    </platform>
+    <platform name="gfdl.ncrc4-intel19">
+      <freVersion>$(FRE_VERSION)</freVersion>
+      <directory stem="$(FRE_STEM)">
+<!-- MDBI requires these to be listed in order to show the path under "Platform Environment" -->
+        <archive>$ARCHIVE/$(stem)/$(name)/$(platform)-$(target)</archive>
+        <analysis>/nbhome/$USER/$(stem)/$(name)</analysis>
+<!-- /MDBI -->
+      </directory>
+      <property name="F2003_FLAGS"         value="-DINTERNAL_FILE_NML "/>
+      <property name="AWG_INPUT_HOME"      value="$(AWG_INPUT_HOME_GFDL)"/>
+      <property name="AWG_ARCHIVE_ROOT"    value="/archive/cjg/mdt"/>
+      <property name="CMIP6_ARCHIVE_ROOT"   value="/archive/oar.gfdl.cmip6/datasets"/>
+      <property name="H1G_ARCHIVE_ROOT"    value="/archive/h1g/mdt"/>
+      <property name="NCORE_PER_NODE"      value="1"/>
+      <csh><![CDATA[
+        module load git
+        ]]>
+      </csh>
+    </platform>
+
+<platform name="ncrc3.intel21">
+      <freVersion>$(FRE_VERSION)</freVersion>
+      <compiler type="intel" version="intel-classic-2021.2.0" />
+<!-- Please make sure to change "YOURGROUPLETTER" to your group, such as b, f, g, m, o... -->
+      <project>$(GFDL_YGL)</project>
+      <directory stem="$(FRE_STEM)">
+         <src>$HOME/$(stem)/$(name)/src</src>
+         <scripts>$HOME/$(stem)/xml_FMS$(FMS_GIT_TAG)/scripts/$(platform)-$(target)</scripts>
+         <stdout>$SCRATCH/$USER/$(stem)/$(name)/$(platform)-$(target)/stdout</stdout>
+      </directory>
+      <property name="F2003_FLAGS"         value=" -DINTERNAL_FILE_NML "/>
+      <property name="AWG_INPUT_HOME"      value="$(AWG_INPUT_HOME_GAEA)"/>
+      <property name="AWG_ARCHIVE_ROOT"    value="$PDATA/gfdl/gfdl_M/cjg/archive/mdt"/>
+      <property name="CMIP6_ARCHIVE_ROOT"   value="$PDATA/gfdl/cmip6/datasets"/>
+      <property name="H1G_ARCHIVE_ROOT"    value="$PDATA/gfdl/gfdl_M/Huan.Guo/archive/mdt"/>
+      <property name="NCORE_PER_NODE"      value="32"/>
+      <csh><![CDATA[
+        module load git
+#
+       setenv KMP_STACKSIZE 512m
+       setenv NC_BLKSZ 1M
+       setenv OMP_SCHEDULE "static,1"
+
+       module swap craype craype/2.7.7
+       module swap PrgEnv-intel PrgEnv-intel/6.0.10
+       module swap intel intel/intel-classic-2021.2.0
+      ]]></csh>
+    </platform>
+
+    <platform name="gfdl.ncrc3-intel21">
+      <xi:include xpointer="xpointer(//setup/platform[@name='gfdl.ncrc3-intel18']/node())" />
+    </platform>
+
+<platform name="ncrc4.intel21">
+      <freVersion>$(FRE_VERSION)</freVersion>
+      <compiler type="intel" version="intel-classic-2021.2.0" />
+<!-- Please make sure to change "YOURGROUPLETTER" to your group, such as b, f, g, m, o... -->
+      <project>$(GFDL_YGL)</project>
+      <directory stem="$(FRE_STEM)">
+         <src>$HOME/$(stem)/$(name)/src</src>
+         <scripts>$HOME/$(stem)/xml_FMS$(FMS_GIT_TAG)/scripts/$(platform)-$(target)</scripts>
+         <stdout>$SCRATCH/$USER/$(stem)/$(name)/$(platform)-$(target)/stdout</stdout>
+      </directory>
+      <property name="F2003_FLAGS"         value=" -DINTERNAL_FILE_NML "/>
+      <property name="AWG_INPUT_HOME"      value="$(AWG_INPUT_HOME_GAEA)"/>
+      <property name="AWG_ARCHIVE_ROOT"    value="$PDATA/gfdl/gfdl_M/cjg/archive/mdt"/>
+      <property name="CMIP6_ARCHIVE_ROOT"   value="$PDATA/gfdl/cmip6/datasets"/>
+      <property name="H1G_ARCHIVE_ROOT"    value="$PDATA/gfdl/gfdl_M/Huan.Guo/archive/mdt"/>
+      <property name="NCORE_PER_NODE"      value="36"/>
+      <csh><![CDATA[
+        module load git
+#
+       setenv KMP_STACKSIZE 512m
+       setenv NC_BLKSZ 1M
+       setenv OMP_SCHEDULE "static,1"
+
+       module swap craype craype/2.7.7
+       module swap PrgEnv-intel PrgEnv-intel/6.0.10
+       module swap intel intel/intel-classic-2021.2.0
+
+      ]]></csh>
+    </platform>
+
+    <platform name="gfdl.ncrc4-intel21">
+      <xi:include xpointer="xpointer(//setup/platform[@name='gfdl.ncrc3-intel18']/node())" />
+    </platform>
+
+<!-- GNU (GCC) -->
+    <platform name="gfdl.ncrc4-gnu">
+      <xi:include xpointer="xpointer(//setup/platform[@name='gfdl.ncrc3-intel18']/node())" />
+    </platform>
+
+    <platform name="ncrc4.gnu">
+      <freVersion>$(FRE_VERSION)</freVersion>
+      <compiler type="gnu" version="8.3.0" />
+      <project>$(GFDL_YGL)</project>
+      <directory stem="$(FRE_STEM)">
+         <src>$HOME/$(stem)/$(name)/src</src>
+         <scripts>$HOME/$(stem)/xml_FMS$(FMS_GIT_TAG)/scripts/$(platform)-$(target)</scripts>
+         <stdout>$SCRATCH/$USER/$(stem)/$(name)/$(platform)-$(target)/stdout</stdout>
+      </directory>
+      <property name="F2003_FLAGS"         value=" -DINTERNAL_FILE_NML "/>
+      <property name="AWG_INPUT_HOME"      value="$(AWG_INPUT_HOME_GAEA)"/>
+      <property name="AWG_ARCHIVE_ROOT"    value="$PDATA/gfdl/gfdl_M/cjg/archive/mdt"/>
+      <property name="CMIP6_ARCHIVE_ROOT"   value="$PDATA/gfdl/cmip6/datasets"/>
+      <property name="H1G_ARCHIVE_ROOT"    value="$PDATA/gfdl/gfdl_M/Huan.Guo/archive/mdt"/>
+      <property name="NCORE_PER_NODE"      value="36"/>
+    </platform>
+
+    <platform name="gfdl.ncrc3-gnu">
+      <xi:include xpointer="xpointer(//setup/platform[@name='gfdl.ncrc3-intel18']/node())" />
+    </platform>
+    <platform name="ncrc3.gnu">
+      <freVersion>$(FRE_VERSION)</freVersion>
+      <compiler type="gnu" version="8.3.0" />
+      <project>$(GFDL_YGL)</project>
+      <directory stem="$(FRE_STEM)">
+         <src>$HOME/$(stem)/$(name)/src</src>
+         <scripts>$HOME/$(stem)/xml_FMS$(FMS_GIT_TAG)/scripts/$(platform)-$(target)</scripts>
+         <stdout>$SCRATCH/$USER/$(stem)/$(name)/$(platform)-$(target)/stdout</stdout>
+      </directory>
+      <property name="F2003_FLAGS"         value=" -DINTERNAL_FILE_NML "/>
+      <property name="AWG_INPUT_HOME"      value="$(AWG_INPUT_HOME_GAEA)"/>
+      <property name="AWG_ARCHIVE_ROOT"    value="$PDATA/gfdl/gfdl_M/cjg/archive/mdt"/>
+      <property name="CMIP6_ARCHIVE_ROOT"   value="$PDATA/gfdl/cmip6/datasets"/>
+      <property name="H1G_ARCHIVE_ROOT"    value="$PDATA/gfdl/gfdl_M/Huan.Guo/archive/mdt"/>
+      <property name="NCORE_PER_NODE"      value="32"/>
+    </platform>
+
+ <!-- orion -->
+    <platform name="orion.intel18">
+      <freVersion>$(FRE_VERSION_ORION)</freVersion>
+      <compiler type="intel" version="2018.4"/>
+      <project>$(ORION_YGL)</project>
+      <directory stem="$(FRE_STEM)"/>
+      <property name="F2003_FLAGS"         value=" -DINTERNAL_FILE_NML -g  "/>
+      <property name="CMIP6_ARCHIVE_ROOT"   value="$PDATA/gfdl/cmip6/datasets"/>
+      <property name="AWG_INPUT_HOME"      value="$(AWG_INPUT_HOME_GAEA)"/>
+      <property name="H1G_ARCHIVE_ROOT"    value="$PDATA/gfdl/gfdl_M/Huan.Guo/archive/mdt"/>
+      <property name="NCORE_PER_NODE"      value="40"/>
+    </platform>
+
+    <platform name="orion.intel19">
+      <freVersion>$(FRE_VERSION_ORION)</freVersion>
+      <compiler type="intel" version="2019.5"/>
+      <project>$(ORION_YGL)</project>
+      <directory stem="$(FRE_STEM)"/>
+      <property name="F2003_FLAGS"         value=" -DINTERNAL_FILE_NML -g  "/>
+      <property name="CMIP6_ARCHIVE_ROOT"   value="$PDATA/gfdl/cmip6/datasets"/>
+      <property name="AWG_INPUT_HOME"      value="$(AWG_INPUT_HOME_GAEA)"/>
+      <property name="H1G_ARCHIVE_ROOT"    value="$PDATA/gfdl/gfdl_M/Huan.Guo/archive/mdt"/>
+      <property name="NCORE_PER_NODE"      value="40"/>
+    </platform>
+
+    <platform name="orion.intel20">
+      <freVersion>$(FRE_VERSION_ORION)</freVersion>
+      <compiler type="intel" version="2020"/>
+      <project>$(ORION_YGL)</project>
+      <directory stem="$(FRE_STEM)"/>
+      <property name="F2003_FLAGS"         value=" -DINTERNAL_FILE_NML -g  "/>
+      <property name="CMIP6_ARCHIVE_ROOT"   value="$PDATA/gfdl/cmip6/datasets"/>
+      <property name="AWG_INPUT_HOME"      value="$(AWG_INPUT_HOME_GAEA)"/>
+      <property name="H1G_ARCHIVE_ROOT"    value="$PDATA/gfdl/gfdl_M/Huan.Guo/archive/mdt"/>
+      <property name="NCORE_PER_NODE"      value="40"/>
+    </platform>
+
+  </setup>
+
+<!--===========-->
+<!--= COMPILE =-->
+<!--===========-->
+
+  <!--The property MOM6_EXAMPLES should point to the mom6 directory that is checked out. It is needed by MOM6 to access its inpu data files-->
+  <property name="MOM6_EXAMPLES"  value="$root/cm4_compile/src/mom6"/>
+
+  <experiment name="cm4p12_FMS$(FMS_GIT_TAG)">
+    <description>
+
+Experiment to build executable. See git log for source code provenance.
+
+    </description>
+
+    <component name="fms" paths="FMS">
+     <description domainName="infrastructure" communityName="FMS" communityVersion="$(RELEASE)" communityGrid=""/>
+      <source versionControl="git" root="https://github.com/NOAA-GFDL">
+        <codeBase version="$(FMS_GIT_TAG)"> FMS.git </codeBase>
+      </source>
+      <compile>
+        <cppDefs>$(F2003_FLAGS) -Duse_libMPI -Duse_netCDF </cppDefs>
+      </compile>
+    </component>
+
+    <component name="atmos_phys" requires="fms" paths="atmos_phys">
+      <description domainName="" communityName="" communityVersion="$(RELEASE)" communityGrid=""/>
+        <source versionControl="git" root="http://gitlab.gfdl.noaa.gov/fms">
+          <codeBase version="$(AWG_GIT_TAG)">atmos_phys.git</codeBase>
+        </source>
+      <compile>
+        <cppDefs>$(F2003_FLAGS) -DCLUBB </cppDefs>
+      </compile>
+    </component>
+
+    <component name="atmos_cubed_sphere" paths="GFDL_atmos_cubed_sphere/driver/GFDL
+                                       GFDL_atmos_cubed_sphere/model
+                                       GFDL_atmos_cubed_sphere/driver/SHiELD/cloud_diagnosis.F90
+                                       GFDL_atmos_cubed_sphere/driver/SHiELD/gfdl_cloud_microphys.F90
+                                       GFDL_atmos_cubed_sphere/tools
+                                       GFDL_atmos_cubed_sphere/GFDL_tools"
+                                requires="fms atmos_phys">
+      <source versionControl="git" root="https://github.com/NOAA-GFDL">
+        <codeBase version="2021.03">GFDL_atmos_cubed_sphere.git</codeBase>
+      </source>
+      <compile>
+        <cppDefs>$(F2003_FLAGS) -DSPMD -DCLIMATE_NUDGE</cppDefs>
+      </compile>
+    </component>
+
+
+    <component name="atmos_dyn" paths="atmos_drivers/coupled"
+                                requires="fms atmos_phys atmos_cubed_sphere">
+      <source versionControl="git" root="https://github.com/NOAA-GFDL">
+        <codeBase version="$(AWG_GIT_TAG)">atmos_drivers.git</codeBase>
+      </source>
+      <compile>
+        <cppDefs>$(F2003_FLAGS) -DSPMD -DCLIMATE_NUDGE</cppDefs>
+      </compile>
+    </component>
+
+    <component name="ice_sis" requires="fms ice_param mom6" paths="ice_sis">
+      <description domainName="Sea Ice SIS" communityName="GFDL-SIS" communityVersion="$(RELEASE)" communityGrid="Tripolar"/>
+      <source versionControl="git" root="http://gitlab.gfdl.noaa.gov/fms">
+        <codeBase version="$(AWG_GIT_TAG)"> ice_sis.git </codeBase>
+      </source>
+      <compile>
+        <cppDefs>$(F2003_FLAGS) -Duse_netCDF</cppDefs>
+      </compile>
+    </component>
+
+    <component name="ice_param" requires="fms mom6" paths="ice_param">
+      <description domainName="Sea Ice SIS" communityName="GFDL-SIS" communityVersion="$(RELEASE)" communityGrid="Tripolar"/>
+      <source versionControl="git" root="https://github.com/NOAA-GFDL">
+        <codeBase version="$(AWG_GIT_TAG)"> ice_param.git </codeBase>
+      </source>
+      <compile>
+        <cppDefs>$(F2003_FLAGS) -Duse_netCDF</cppDefs>
+      </compile>
+    </component>
+
+    <component name="land_lad2" requires="fms" paths="land_lad2">
+      <description domainName="LM3" communityName="land_lad2" communityVersion="dev/master" communityGrid=""/>
+      <source versionControl="git" root="http://gitlab.gfdl.noaa.gov/fms">
+        <codeBase version="land_lad2_$(AWG_GIT_TAG)">land_lad2.git</codeBase>
+      </source>
+      <compile doF90Cpp="yes">
+       <cppDefs>$(F2003_FLAGS) -nostdinc</cppDefs>
+      </compile>
+    </component>
+
+    <component name="mom6" requires="fms" paths="mom6/src/MOM6/config_src/dynamic mom6/src/MOM6/config_src/coupled_driver mom6/src/MOM6/src/*/ mom6/src/MOM6/src/*/*/ ocean_BGC/generic_tracers ocean_BGC/mocsy/src">
+      <description domainName="Ocean" communityName="GFDL-MOM6" communityVersion="$(MOM6_GIT_TAG)" communityGrid="Tripolar"/>
+       <source versionControl="git" root="https://github.com/NOAA-GFDL">
+        <codeBase version="$(AWG_GIT_TAG)"> ocean_BGC.git </codeBase>
+        <csh><![CDATA[
+          git clone -b $(MOM6_GIT_TAG) https://github.com/NOAA-GFDL/MOM6-examples.git mom6
+          pushd mom6
+          git checkout $(MOM6_GIT_TAG)  #needed for older git on zeus
+          git submodule init src/MOM6 src/SIS2 src/icebergs tools/python/MIDAS
+          git clone --recursive https://github.com/NOAA-GFDL/MOM6.git src/MOM6 
+          git clone             https://github.com/NOAA-GFDL/SIS2.git src/SIS2
+          git clone             https://github.com/NOAA-GFDL/icebergs.git src/icebergs
+          git submodule update #This gets the right version of submodules
+          popd
+
+          pushd mom6
+          set platform_domain = `perl -T -e "use Net::Domain(hostdomain) ; print hostdomain"`
+          if ("${platform_domain}" =~ *"fairmont.rdhpcs.noaa.gov"* ) then
+            ln -s /scratch4/GFDL/gfdlscr/pdata/gfdl_O/datasets/ .datasets
+          else if ("${platform_domain}" =~ *"ccs.ornl.gov"* ) then
+            ln -s /lustre/atlas/proj-shared/cli061/pdata/gfdl_O/datasets/ .datasets
+          else
+            ln -s $PDATA/gfdl/gfdl_O/datasets/ .datasets
+          endif
+          popd   
+
+          test -e mom6/.datasets
+          if ($status != 0) then
+            echo ""; echo "" ; echo "   WARNING:  .datasets link in MOM6 examples directory is invalid"; echo ""; echo ""
+          endif
+
+        ]]></csh>
+      </source>
+      <compile>
+        <cppDefs><![CDATA[ $(F2003_FLAGS) -DMAX_FIELDS_=100 -DNOT_SET_AFFINITY -D_USE_MOM6_DIAG -D_USE_GENERIC_TRACER  -DUSE_PRECISION=2  ]]></cppDefs>
+        <makeOverrides>OPENMP=""</makeOverrides> <!-- openmp switch for MOM6 may cause crash -->
+      </compile>
+    </component>
+
+    <component name="coupler" paths="FMScoupler/full FMScoupler/shared"
+               requires="fms atmos_dyn atmos_phys land_lad2 ice_sis ice_param mom6 ">
+      <description domainName="FMS Coupler" communityName="coupler" communityVersion="$(RELEASE)" communityGrid=""/>
+      <source versionControl="git" root="https://github.com/NOAA-GFDL">
+        <codeBase version="$(FMS_GIT_TAG)"> FMScoupler.git </codeBase>
+      </source>
+      <compile>
+        <cppDefs>$(F2003_FLAGS)</cppDefs>
+      </compile>
+    </component>
+
+  </experiment>
+
+<!--============================-->
+<!--= TEMPLATES FOR INPUT DATA =-->
+<!--============================-->
+  <freInclude name="common_LM4">
+    <input>
+      <dataFile label="input" target="INPUT/soil_type.nc" chksum="" size="" timestamp="">
+         <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/common/common_LM4/soil_type_hwsd_5minute.nc</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/common/common_LM4/biodata.nc</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/common/common_LM4/cover_type.nc</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/common/common_LM4/geohydrology.nc</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/common/common_LM4/geohydrology_table_2a2n.nc</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/common/common_LM4/ground_type.nc</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/common/common_LM4/landuse.nc</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/common/common_LM4/soil_brdf.nc</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+  <freInclude name="c96_LM4">
+    <input>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/common/c96_LM4/19810101.static_veg_LM3p2sosn_HWSD5min_C96_OM4_025.v20150930.tar</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/common/c96_LM4/c96_OM4_025_hydrography_v20170413.tar</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/common/c96_LM4/c96_topo_rough_land.nc.tar</dataSource>
+     </dataFile>
+    </input>
+  </freInclude>
+
+ <freInclude name="common_AM4_v20170208">
+    <input>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/common/common_AM4/sea_esf_CM4_V6_AUG2015.cpio</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/common/common_AM4/aerosol_inputs_newdroplet2_v20170208.tar</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/common/common_AM4/tropchem_dec2015.cpio</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/common/common_AM4/depvel_gc_am3_tran.nc</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/common/common_AM4/so2_0.25_volcanoes.nc</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/AM4_201510" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/common/common_AM4/am4_optical_table_20151029.dat</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+
+  <freInclude name="common_cmip6">
+    <input>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/forcings/common_cmip6/cmip6_GHG_ODS_conc_2016.tar</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/chemlbf" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/forcings/common_cmip6/chemlbf_CMIP6_merge_RCP45</dataSource>
+      </dataFile>
+
+      <dataFile label="input" target="INPUT/o3.climatology.nc" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/forcings/common_cmip6/mmro3_CMIP6_184901-201512.nc</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/forcings/common_cmip6/emissions.isoprene.1x1.2000.nc</dataSource>
+      </dataFile>
+       <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/forcings/common_cmip6/emissions.terpenes.1x1.2000.nc</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+  <freInclude name="Volcano_Solar_TimeSeries_cmip6">
+    <input>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$PDATA/gfdl/gfdl_M/David.Paynter/CMIP6_INPUT/Volcano/extsw_data.nc</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$PDATA/gfdl/gfdl_M/David.Paynter/CMIP6_INPUT/Volcano/omgsw_data.nc</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$PDATA/gfdl/gfdl_M/David.Paynter/CMIP6_INPUT/Volcano/asmsw_data.nc</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$PDATA/gfdl/gfdl_M/David.Paynter/CMIP6_INPUT/Volcano/extlw_data.nc</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$PDATA/gfdl/gfdl_M/David.Paynter/CMIP6_INPUT/Solar/lean_solar_spectral_data.dat</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+
+  <freInclude name="Volcano_Solar_TimeSeries_cmip6_v2">
+    <input>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/forcings/Volcano_Solar_TimeSeries_cmip6_v2/extsw_data.nc</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/forcings/Volcano_Solar_TimeSeries_cmip6_v2/omgsw_data.nc</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/forcings/Volcano_Solar_TimeSeries_cmip6_v2/asmsw_data.nc</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/forcings/Volcano_Solar_TimeSeries_cmip6_v2/extlw_data.nc</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/forcings/Volcano_Solar_TimeSeries_cmip6_v2/lean_solar_spectral_data.dat</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+
+
+  <freInclude name="Volcano_Solar_2010_cmip6">
+    <input>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$PDATA/gfdl/gfdl_M/David.Paynter/CMIP6_INPUT/Volcano/AVG_2010/extsw_data.nc</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$PDATA/gfdl/gfdl_M/David.Paynter/CMIP6_INPUT/Volcano/AVG_2010/omgsw_data.nc</dataSource>
+      </dataFile>
+        <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+      <dataSource platform="$(platform)">$PDATA/gfdl/gfdl_M/David.Paynter/CMIP6_INPUT/Volcano/AVG_2010/asmsw_data.nc</dataSource>
+      </dataFile>
+        <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+      <dataSource platform="$(platform)">$PDATA/gfdl/gfdl_M/David.Paynter/CMIP6_INPUT/Volcano/AVG_2010/extlw_data.nc</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$PDATA/gfdl/gfdl_M/David.Paynter/CMIP6_INPUT/Solar/AVG_2010/lean_solar_spectral_data.dat</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+
+  <freInclude name="Volcano_Solar_2010_cmip6_v2">
+    <input>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/forcings/Volcano_Solar_2010_cmip6_v2/extsw_data.nc</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/forcings/Volcano_Solar_2010_cmip6_v2/omgsw_data.nc</dataSource>
+      </dataFile>
+        <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+      <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/forcings/Volcano_Solar_2010_cmip6_v2/asmsw_data.nc</dataSource>
+      </dataFile>
+        <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+      <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/forcings/Volcano_Solar_2010_cmip6_v2/extlw_data.nc</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/forcings/Volcano_Solar_2010_cmip6_v2/lean_solar_spectral_data.dat</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+
+  <freInclude name="Volcano_Solar_1850_cmip6">
+    <input>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/forcings/Volcano_Solar_1850_cmip6/extsw_data.nc</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/forcings/Volcano_Solar_1850_cmip6/omgsw_data.nc</dataSource>
+      </dataFile>
+        <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+      <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/forcings/Volcano_Solar_1850_cmip6/asmsw_data.nc</dataSource>
+      </dataFile>
+        <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+      <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/forcings/Volcano_Solar_1850_cmip6/extlw_data.nc</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/forcings/Volcano_Solar_1850_cmip6/lean_solar_spectral_data.dat</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+
+  <freInclude name="Volcano_Solar_1850_cmip6_v2">
+    <input>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/forcings/Volcano_Solar_1850_cmip6_v2/extsw_data.nc</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/forcings/Volcano_Solar_1850_cmip6_v2/omgsw_data.nc</dataSource>
+      </dataFile>
+        <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+      <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/forcings/Volcano_Solar_1850_cmip6_v2/asmsw_data.nc</dataSource>
+      </dataFile>
+        <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+      <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/forcings/Volcano_Solar_1850_cmip6_v2/extlw_data.nc</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/forcings/Volcano_Solar_1850_cmip6_v2/lean_solar_spectral_data.dat</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+
+  <freInclude name="emissions_cmip6_v20161213">
+    <input>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$PDATA/gfdl/cmip6/datasets/CM4/forcings/emissions_cmip6_v20161213/litechem_emission.tar</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/anthro_so2.1849_2016.nc" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$PDATA/gfdl/gfdl_M/Vaishali.Naik/input/cmip6_forcing_dataset/emissions/v2016-12-13/fast_chemistry/emissions.simple.so2.0.5x0.5.1849-2016.nc</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/co2_data.nc" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$PDATA/gfdl/cmip6/datasets/CM4/forcings/CO2/co2_historical_3D_0to2016.nc</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+
+  <freInclude name="emissions_cmip6_v20170518">
+    <input>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/forcings/emissions_cmip6_v20170518/emissions.fastchem.0.5x0.5.1849-2017.tar</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/anthro_so2.1849-2017.nc" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/forcings/emissions_cmip6_v20170518/emissions.simple.so2.0.5x0.5.1849-2017.nc</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/co2_data.nc" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$PDATA/gfdl/gfdl_M/Huan.Guo/awg/input/cmip6/co2_data_2016.nc</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+
+  <freInclude name="L32_gas_conc">
+    <input>
+      <dataFile label="input" target="INPUT/gas_conc_3D_am3p9.nc" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/common/L32_gas_conc/gas_conc_3D32L_am3p9.nc</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+  <freInclude name="L48_gas_conc">
+    <input>
+      <dataFile label="input" target="INPUT/gas_conc_3D_am3p9.nc" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/L48_gas_conc/gas_conc_3D48L_am3p9.nc</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+  <freInclude name="amip_sst_cmip6">
+    <input>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$PDATA/gfdl/gfdl_M/Huan.Guo/PCMDI_sst/CMIP6_PCMDI.186901-201612.tar</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+  <freInclude name="climo_sst_cmip6">
+    <input>
+      <dataFile label="input" target="INPUT/hadisst_sst.data.nc" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$PDATA/gfdl/gfdl_M/Huan.Guo/PCMDI_sst/sst.climo.1981-2014.data.nc</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/hadisst_ice.data.nc" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$PDATA/gfdl/gfdl_M/Huan.Guo/PCMDI_sst/ice.climo.1981-2014.data.nc</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+  <freInclude name="amip_sst_cmip6_v6p1">
+    <input>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/forcings/AMIP_SST_cmip6_v6p1/CMIP6_PCMDI.186901-201712.v6p1.tar</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+  <freInclude name="c96_grid">
+    <input>
+      <dataFile label="gridSpec" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/common/c96_grid/c96_OM4_025_grid_No_mg_drag_v20160808.tar</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/land_domain.nc" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(CMIP6_ARCHIVE_ROOT)/CM4/common/c96_grid/land_domain.nc</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+  <freInclude name="c96_stack_size">
+    <input>
+      <csh><![CDATA[
+set domains_stack_size = "2097152"
+
+# Copy AWG ascii input files to GFDL (waiting for FRE to do this for us)
+if ( $?batch && ! $?FRE_STAGE ) then
+  if ( $?flagOutputXferOn && $?flagOutputPostProcessOn ) then
+    gcp --batch -cd -r --sync $(AWG_INPUT_HOME) gfdl:$(AWG_INPUT_HOME_GFDL)/..
+  endif
+endif
+      ]]></csh>
+    </input>
+  </freInclude>
+
+  <freInclude name="c192_LM4">
+    <input>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$PDATA/gfdl/gfdl_M/Huan.Guo/INPUT/static_veg/19810101.static_veg_LM3p2sosn_HWSD5min_C192_OM4_025.v20160304.tar</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$PDATA/gfdl/gfdl_M/Huan.Guo/archive/mdt/awg/input/lm3/c192_OM4_025_hydrography_v20170413.tar </dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$PDATA/gfdl/gfdl_M/Huan.Guo/INPUT/drag/c192_topo_rough_land.nc.tar</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+  <freInclude name="c192_grid">
+    <input>
+      <dataFile label="gridSpec" target="INPUT/" chksum="" size="" timestamp="">
+         <dataSource platform="$(platform)">$(H1G_ARCHIVE_ROOT)/awg/input/grid/c192_OM4_025_grid_No_mg_drag_v20160808.tar</dataSource>
+      </dataFile>
+      <dataFile label="input" target="INPUT/land_domain.nc" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$PDATA/gfdl/gfdl_F/Thomas.Robinson/land/c192/land_domain.nc</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+  <freInclude name="c192_stack_size">
+    <input>
+      <csh><![CDATA[
+set domains_stack_size = "3097152"
+set do_ocean = "false"
+
+# Copy AWG ascii input files to GFDL (waiting for FRE to do this for us)
+if ( $?batch && ! $?FRE_STAGE ) then
+  if ( $?flagOutputXferOn && $?flagOutputPostProcessOn ) then
+    gcp --batch -cd -r --sync $(AWG_INPUT_HOME) gfdl:$(AWG_INPUT_HOME_GFDL)/..
+  endif
+endif
+      ]]></csh>
+    </input>
+  </freInclude>
+
+  <freInclude name="csh_adjust_dry_mass">
+    <input>
+      <csh type="always"><![CDATA[
+pushd INPUT
+#cd INPUT
+
+# adjustment of dry mass first time only
+set adjust_dry_mass = `$(AWG_INPUT_HOME)/adjust_dry_mass.csh`
+
+# create dummy MOM6 parameter file
+touch MOM_input
+popd
+      ]]></csh>
+    </input>
+  </freInclude>
+
+
+  <freInclude name="field_table_am4p11">
+    <input>
+      <dataFile label="fieldTable" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/field_table/field_table_am4p11</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+
+<!--
+  field_table with parameters for CMIP6 diagnostic output
+-->
+  <freInclude name="field_table_am4p11_cmip6">
+    <input>
+      <dataFile label="fieldTable" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/field_table/field_table_am4p11_cmip6</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+
+  <freInclude name="field_table_am4p11_fullchem">
+    <input>
+      <dataFile label="fieldTable" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/field_table/field_table_am4p11_fullchem</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+
+  <freInclude name="field_table_am4p11_fullchem_2010">
+    <input>
+      <dataFile label="fieldTable" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/field_table/field_table_am4p11_fullchem_2010</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+
+  <freInclude name="field_table_am4p11_fullchem_1850">
+    <input>
+      <dataFile label="fieldTable" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/field_table/field_table_am4p11_fullchem_1850</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+
+
+  <freInclude name="diag_table_lm3p2_fullaero">
+    <input>
+      <diagTable>
+$name
+$baseDate
+
+      </diagTable>
+      <dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/diag_table/diag_table_atmos</dataSource>
+      </dataFile>
+      <dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/diag_table/diag_table_atmos_simpleSO4</dataSource>
+      </dataFile>
+      <dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+         <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/diag_table/diag_table_land_old</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+   <freInclude name="diag_table_lm3p2_qadt">
+    <input>
+      <diagTable>
+$name
+$baseDate
+
+      </diagTable>
+      <dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/diag_table/diag_table_atmos_qadt</dataSource>
+      </dataFile>
+      <!--dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+         <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/diag_table/cmip6/diag_table_CFday_qadt</dataSource>
+      </dataFile-->
+  </input>
+  </freInclude>
+
+   <freInclude name="diag_table_lm3p2_calipso">
+    <input>
+      <diagTable>
+$name
+$baseDate
+
+      </diagTable>
+      <dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/diag_table/diag_table_atmos_calipso</dataSource>
+      </dataFile>
+      <!--dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+         <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/diag_table/cmip6/diag_table_CFday_qadt</dataSource>
+      </dataFile-->
+  </input>
+  </freInclude>
+
+
+
+ <freInclude name="diag_table_lm3p2_cmip_qadt">
+    <input>
+      <diagTable>
+$name
+$baseDate
+
+      </diagTable>
+      <dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+         <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/diag_table/cmip6/diag_table_CFday_qadt</dataSource>
+      </dataFile>
+  </input>
+  </freInclude>
+
+
+
+<!--
+  diag_table for CMIP6 diagnostic output
+-->
+  <freInclude name="diag_table_lm3p2_fullaero_cmip6">
+    <input>
+      <diagTable>
+$name
+$baseDate
+
+      </diagTable>
+      <dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/diag_table/diag_table_atmos_cmip6</dataSource>
+      </dataFile>
+      <dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+         <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/diag_table/diag_table_land</dataSource>
+      </dataFile>
+      <dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/diag_table/diag_table_atmos_simpleSO4</dataSource>
+      </dataFile>
+
+<!--
+      <dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+         <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/diag_table/cmip6/diag_table_3hr</dataSource>
+      </dataFile>
+      <dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+         <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/diag_table/cmip6/diag_table_6hrLev</dataSource>
+      </dataFile>
+-->
+
+      <dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+         <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/diag_table/cmip6/diag_table_6hrPlevPt</dataSource>
+      </dataFile>
+
+      <dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+         <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/diag_table/cmip6/diag_table_AERmon_simple</dataSource>
+      </dataFile>
+      <dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+         <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/diag_table/cmip6/diag_table_Amon</dataSource>
+      </dataFile>
+
+<!-- CF3hr, no need for piControl, historical, 1%CO2, 4XCO2 CFmip
+      <dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+         <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/diag_table/cmip6/diag_table_CF3hr</dataSource>
+      </dataFile>
+-->
+      <dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+         <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/diag_table/cmip6/diag_table_CFday</dataSource>
+      </dataFile>
+      <dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+         <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/diag_table/cmip6/diag_table_CFmon</dataSource>
+      </dataFile>
+      <dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+         <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/diag_table/cmip6/diag_table_E1hrClimMon</dataSource>
+      </dataFile>
+
+<!-- E3hrPt, no need for piControl, historical, 1%CO2, 4XCO2 CFmip
+      <dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+         <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/diag_table/cmip6/diag_table_E3hrPt</dataSource>
+      </dataFile>
+-->
+
+      <dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+         <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/diag_table/cmip6/diag_table_Eday</dataSource>
+      </dataFile>
+      <dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+         <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/diag_table/cmip6/diag_table_Emon</dataSource>
+      </dataFile>
+      <dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+         <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/diag_table/cmip6/diag_table_LImon</dataSource>
+      </dataFile>
+      <dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+         <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/diag_table/cmip6/diag_table_Lmon</dataSource>
+      </dataFile>
+      <dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+         <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/diag_table/cmip6/diag_table_day</dataSource>
+      </dataFile>
+      <dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+         <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/diag_table/cmip6/diag_table_fx</dataSource>
+      </dataFile>
+
+<!-- CFsite, no need to piControl  
+      <dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+         <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/diag_table/cmip6/diag_table_CFsite</dataSource>
+      </dataFile>
+-->
+
+      <dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+         <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/diag_table/cmip6/diag_table_global_avg</dataSource>
+      </dataFile>
+
+<!-- remove mcu, GFDL AM4/CM4 only provides net upward mass fluxes "mc". There are no upward mass fluxes  
+      <dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+         <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/diag_table/diag_table_CFmon_aug30</dataSource>
+      </dataFile>
+-->
+    </input>
+  </freInclude>
+
+
+  <freInclude name="diag_table_lm3p2_fullchem">
+    <input>
+      <diagTable>
+$name
+$baseDate
+
+      </diagTable>
+      <dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/diag_table/diag_table_atmos</dataSource>
+      </dataFile>
+      <dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/diag_table/diag_table_atmos_fullchemOnly_v20140325</dataSource>
+      </dataFile>
+      <dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+         <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/diag_table/diag_table_land</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+  <freInclude name="data_table_AM4">
+    <input>
+      <dataFile label="dataTable" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/data_table/data_table_amip</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+  <freInclude name="data_table_AM4_hi05">
+    <input>
+      <dataFile label="dataTable" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/data_table/data_table_amip_hi05</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+  <freInclude name="data_table_AM4_hi10">
+    <input>
+      <dataFile label="dataTable" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/data_table/data_table_amip_hi10</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+  <freInclude name="data_table_AM4_hi30">
+    <input>
+      <dataFile label="dataTable" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/data_table/data_table_amip_hi30</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+   <freInclude name="data_table_co2">
+    <input>
+      <dataFile label="dataTable" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$(AWG_INPUT_HOME)/data_table/data_table_co2</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+  <freInclude name="c96L32_initCond_Newtopo">
+    <input>
+      <dataFile label="initCond" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$PDATA/gfdl/gfdl_M/Huan.Guo/INPUT/InitCond/AWG_c96L32/topo_v20161229/awg_C96L32_LM3_OM4_025_grid_lm4p1_topo_v20161229.tar</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+  <freInclude name="c96L33_initCond">
+    <input>
+      <dataFile label="initCond" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$PDATA/gfdl/gfdl_W/Ming.Zhao/archive/mdt/awg/input/ic/AM4/awg_C96L33_LM3_OM4_025_grid_lm4p1_topo_v20170309.tar</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+  <freInclude name="c96L48_initCond">
+    <input>
+      <dataFile label="initCond" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$PDATA/gfdl/gfdl_M/Huan.Guo/INPUT/InitCond/AWG_c96L48/awg_C96L48_LM3_OM4_025_grid_lm4p1_topo_v20160210.tar</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+
+  <freInclude name="c192L32_initCond">
+    <input>
+      <dataFile label="initCond" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$PDATA/gfdl/gfdl_M/Huan.Guo/INPUT/InitCond/AWG_c192L32_newLand20160112/awg_C192L32_OM4_025_grid_lm4p1_v20161202.tar</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+
+  <freInclude name="c192L33_initCond">
+    <input>
+      <dataFile label="initCond" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource platform="$(platform)">$PDATA/gfdl/gfdl_M/Huan.Guo/INPUT/InitCond/AWG_c192L32_newLand20160112/awg_C192L32_OM4_025_grid_lm4p1_v20170325.tar</dataSource>
+      </dataFile>
+    </input>
+  </freInclude>
+
+  <freInclude name="cosp_lists">
+    <input>
+      <namelist name="cosp_diagnostics_nml">
+   generate_orbital_output = .false.
+   orbital_filename = 'INPUT/cloudsat_orbit_08921_14250.nc'
+   sat_begin_time = 2009, 1, 1, 0, 0, 0
+   sat_period = 10800
+   num_sat_periods = 2929
+      </namelist>
+
+      <namelist name="COSP_INPUT">
+   use_rh_wrt_liq = .true.
+   use_input_file = .false.
+   produce_cmor_output_fields = .false.
+   CMOR_NL='INPUT/cosp_cmor_nl.txt', ! CMOR namelist
+   NPOINTS_IT = 20000
+   OVERLAP=3,   !  overlap type: 1=max, 2=rand, 3=max/rand
+   ISCCP_TOPHEIGHT=1,  !  1 = adjust top height using both a computed
+                       !  infrared brightness temperature and the visible
+                       !  optical depth to adjust cloud top pressure. Note
+                       !  that this calculation is most appropriate to compare
+                     !  to ISCCP data during sunlit hours.
+                     !  2 = do not adjust top height, that is cloud top
+                     !  pressure is the actual cloud top pressure
+                     !  in the model
+                    !  3 = adjust top height using only the computed
+                       !  infrared brightness temperature. Note that this
+                       !  calculation is most appropriate to compare to ISCCP
+                       !  IR only algortihm (i.e. you can compare to nighttime
+                       !  ISCCP data with this option)
+  ISCCP_TOPHEIGHT_DIRECTION=2,   ! direction for finding atmosphere pressure level
+                                 ! with interpolated temperature equal to the radiance
+                                 ! determined cloud-top temperature
+                                 ! 1 = find the *lowest* altitude (highest pressure) level
+                                 ! with interpolated temperature equal to the radiance
+                                 ! determined cloud-top temperature
+                                 ! 2 = find the *highest* altitude (lowest pressure) level
+                                 ! with interpolated temperature equal to the radiance
+                                 ! determined cloud-top temperature
+                                 ! ONLY APPLICABLE IF top_height EQUALS 1 or 3
+                                 ! 1 = default setting, and matches all versions of
+                                 ! ISCCP simulator with versions numbers 3.5.1 and lower
+                                 ! 2 = experimental setting
+! USE_VGRID=.false., ! Use fixed vertical grid for outputs? (if .true. then you need to define number of levels with Nlr)
+  USE_VGRID=.true., ! Use fixed vertical grid for outputs? (if .true. then you need to define number of levels with Nlr)
+  NLR=40,       ! Number of levels in statistical outputs (only used if USE_VGRID=.true.)
+   CSAT_VGRID=.true., ! CloudSat vertical? (if .true. then the CloudSat standard grid is used for the outputs.
+! CSAT_VGRID=.false., ! CloudSat vertical? (if .true. then the CloudSat standard grid is used for the outputs.
+                     !  USE_VGRID needs also be .true.)
+!  NHYDRO=8,   ! Number of hydrometeors
+! FINPUT='cosp_input_um.nc', ! NetCDF file with 1D inputs
+  FINPUT='cosp_input_um_2d.nc', ! NetCDF file with 2D inputs
+  ! Some inputs related to radar simulations
+  RADAR_FREQ=94.0, ! CloudSat radar frequency (GHz)
+  SURFACE_RADAR=0, ! surface=1, spaceborne=0
+! SURFACE_RADAR=1, ! surface=1, spaceborne=0
+  use_mie_tables=0,! use a precomputed lookup table? yes=1,no=0
+  use_gas_abs=1,   ! include gaseous absorption? yes=1,no=0
+  do_ray=0,        ! calculate/output Rayleigh refl=1, not=0
+  melt_lay=0,      ! melting layer model off=0, on=1
+  k2=-1,           ! |K|^2, -1=use frequency dependent default
+  use_reff=.true., ! True if you want effective radius to be used by radar simulator (always used by lidar)
+  use_precipitation_fluxes=.true.,  ! True if precipitation fluxes are input to the algorithm
+  ! Some inputs related to lidar simulations
+  Nprmts_max_hydro=12, ! Max number of parameters for hydrometeor size distributions
+  Naero=1,             ! Number of aerosol species (Not used)
+  Nprmts_max_aero=1,   ! Max number of parameters for aerosol size distributions (Not used)
+  lidar_ice_type=0     ! Ice particle shape in lidar calculations (0=ice-spheres ; 1=ice-non-spherical)
+
+ !--------------------------------------------------------------------- -------------
+ !-------------- RTTOV inputs
+ !--------------------------------------------------------------------- -------------
+  Platform=1,    ! satellite platform
+  Satellite=15,  ! satellite
+  Instrument=0,  ! instrument
+  Nchannels=8,   ! Number of channels to be computed
+  Channels=1,3,5,6,8,10,11,13,        ! Channel numbers (please be sure that you supply Nchannels)
+  Surfem=0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,  ! Surface emissivity (please be sure that you supply Nchannels)
+  ZenAng=50.0, ! Satellite Zenith Angle
+  CO2=5.241e-04, ! Mixing ratios of trace gases
+  CH4=9.139e-07,
+  N2O=4.665e-07,
+  CO=2.098e-07
+      </namelist>
+
+      <namelist name="COSP_OUTPUT">
+! Simulator flags
+  Lradar_sim=.true.,
+  Llidar_sim=.true.,
+  Lisccp_sim=.true.,
+  Lmodis_sim=.true.,
+  Lmisr_sim=.true.
+  Lrttov_sim=.false.
+! Output variables
+  Lalbisccp=.true.,
+  Latb532=.true.,
+  Lboxptopisccp=.true.,
+  Lboxtauisccp=.true.,
+  Lcfaddbze94=.true.,
+  LcfadLidarsr532=.true.,
+  Lclcalipso=.true.,
+  Lclhcalipso=.true.,
+  Lclisccp=.true.,
+  Lcllcalipso=.true.,
+  Lclmcalipso=.true.,
+  Lcltcalipso=.true.,
+  Lpctisccp=.true.,
+  Ldbze94=.true.,
+  Ltauisccp=.true.,
+  Lcltisccp=.true.,
+  Ltoffset  = .true.
+  LparasolRefl=.true.,
+  LclMISR=.true.
+  Lmeantbisccp=.true.
+  Lmeantbclrisccp=.true.
+! Use lidar and radar
+  Lclcalipso2=.true.,
+  Lcltlidarradar=.true.,
+! These aere provided for debugging or special purposes
+  Lfracout=.true.
+  LlidarBetaMol532=.true.
+!MODIS
+  Lcltmodis=.true.
+  Lclwmodis=.true.
+  Lclimodis=.true.
+  Lclhmodis=.true.
+  Lclmmodis=.true.
+  Lcllmodis=.true.
+  Ltautmodis=.true.
+  Ltauwmodis=.true.
+  Ltauimodis=.true.
+  Ltautlogmodis=.true.
+  Ltauwlogmodis=.true.
+  Ltauilogmodis=.true.
+  Lreffclwmodis=.true.
+  Lreffclimodis=.true.
+  Lpctmodis=.true.
+  Llwpmodis=.true.
+  Liwpmodis=.true.
+  Lclmodis=.true.
+!RTTOV
+  Ltbrttov=.false.
+      </namelist>
+    </input>
+  </freInclude>
+
+
+
+<!--================================-->
+<!--= LAYOUTS FOR C96 EXPERIMENTS  =-->
+<!--================================-->
+
+<freInclude name="c96_864_production">
+        <resources site="ncrc3" jobWallclock="16:00:00"
+                   segRuntime="1:50:00" >
+               <atm ranks="432" threads="2"    layout = "3,24"    io_layout = "1,4" />
+               <lnd                            layout = "3,24"    io_layout = "1,4" />
+               <ocn ranks="0"   threads="0"    layout = "144,3"   io_layout = "1,3" /> 
+               <ice                            layout = "144,3"   io_layout = "1,3" />
+        </resources>
+        <resources site="ncrc4" jobWallclock="16:00:00"
+                   segRuntime="1:50:00" >
+               <atm ranks="432" threads="2"    layout = "3,24"    io_layout = "1,4" />
+               <lnd                            layout = "3,24"    io_layout = "1,4" />
+               <ocn ranks="0"   threads="0"    layout = "144,3"   io_layout = "1,3" /> 
+               <ice                            layout = "144,3"   io_layout = "1,3" />
+        </resources>
+        <resources site="orion" jobWallclock="8:00:00"
+                   segRuntime="1:00:00" >
+                <atm ranks="480" threads="2"    layout = "4,20"    io_layout = "1,4" />
+                <lnd                            layout = "4,20"    io_layout = "1,4" />
+                <ocn ranks="0"   threads="0"    layout = "80,6"    io_layout = "1,3" />
+                <ice                            layout = "80,6"    io_layout = "1,3" />
+        </resources>
+</freInclude>
+
+<freInclude name="c96_1152_production">
+        <resources jobWallclock="16:00:00"
+                   segRuntime="04:00:00" >
+                <atm ranks="576" threads="2"    layout = "4,24"    io_layout = "1,4" />
+                <lnd                            layout = "4,24"    io_layout = "1,4" />
+                <ocn ranks="0"    threads="0"   layout = "144,4"   io_layout = "1,4" /> 
+                <ice                            layout = "144,4"   io_layout = "1,4" />
+        </resources>
+</freInclude>
+
+<freInclude name="c96_1728_production">
+        <resources jobWallclock="16:00:00"
+                   segRuntime="03:00:00" >
+                <atm ranks="864" threads="2"    layout = "6,24"    io_layout = "1,4" />
+                <lnd                            layout = "6,24"    io_layout = "1,4" />
+                <ocn ranks="0"    threads="0"   layout = "144,6"   io_layout = "1,3" /> 
+                <ice                            layout = "144,6"   io_layout = "1,3" />
+        </resources>
+</freInclude>
+
+
+<freInclude name="c96_216_basic">
+        <run days="8">
+                <resources jobWallclock="02:30:00">
+                <atm ranks="216" threads="1"    layout = "3,12"    io_layout = "1,4" />
+                <lnd                            layout = "3,12"    io_layout = "1,4" />
+                <ocn ranks="0"   threads="0"    layout = "72,3"    io_layout = "1,3" />
+                <ice                            layout = "72,3"    io_layout = "1,3" />
+                </resources>
+        </run>
+</freInclude>
+
+
+<freInclude name="c96_216_rts">
+        <run days="8">
+                <resources jobWallclock="00:40:00">
+                <atm ranks="216" threads="1"    layout = "3,12"    io_layout = "1,4" />
+                <lnd                            layout = "3,12"    io_layout = "1,4" />
+                <ocn ranks="0"   threads="0"    layout = "72,3"    io_layout = "1,3" />
+                <ice                            layout = "72,3"    io_layout = "1,3" />
+                </resources>
+        </run>
+</freInclude>
+<freInclude name="c96_384_rts">
+        <run days="4 4">
+                <resources jobWallclock="00:40:00">
+                <atm ranks="192" threads="2"    layout = "4,8"     io_layout = "1,4" />
+                <lnd                            layout = "4,8"     io_layout = "1,4" />
+                <ocn ranks="0"   threads="0"    layout = "64,3"    io_layout = "1,3" /> 
+                <ice                            layout = "64,3"    io_layout = "1,3" />
+                </resources>
+        </run>
+</freInclude>
+
+<freInclude name="c96_432_debug">
+        <run days="2">
+                <resources jobWallclock="02:00:00">
+                <atm ranks="432" threads="1"    layout = "3,24"    io_layout = "1,4" />
+                <lnd                            layout = "3,24"    io_layout = "1,4" />
+                <ocn ranks="0"   threads="0"    layout = "144,3"   io_layout = "1,3" /> 
+                <ice                            layout = "144,3"   io_layout = "1,3" />
+                </resources>
+        </run>
+</freInclude>
+
+<freInclude name="c96_216_debugrts">
+        <run days="2">
+                <resources jobWallclock="00:59:00">
+                <atm ranks="216" threads="1"    layout = "3,12"    io_layout = "1,4" />
+                <lnd                            layout = "3,12"    io_layout = "1,4" />
+                <ocn ranks="0"   threads="0"    layout = "72,3"    io_layout = "1,3" />
+                <ice                            layout = "72,3"    io_layout = "1,3" />
+                </resources>
+        </run>
+</freInclude>
+<freInclude name="c96_384_debugrts">
+        <run days="1 1">
+                <resources jobWallclock="00:59:00">
+                <atm ranks="192" threads="2"    layout = "4,8"     io_layout = "1,4" />
+                <lnd                            layout = "4,8"     io_layout = "1,4" />
+                <ocn ranks="0"   threads="0"    layout = "64,3"    io_layout = "1,3" /> 
+                <ice                            layout = "64,3"    io_layout = "1,3" />
+                </resources>
+        </run>
+</freInclude>
+
+<freInclude name="c96_864_restart">
+        <run days="4 4">
+                <resources jobWallclock="00:45:00">
+                <atm ranks="432" threads="2"    layout = "3,24"    io_layout = "1,4" />
+                <lnd                            layout = "3,24"    io_layout = "1,4" />
+                <ocn ranks="0"   threads="0"    layout = "144,3"   io_layout = "1,3" /> 
+                <ice                            layout = "144,3"   io_layout = "1,3" />
+                </resources>
+        </run>
+</freInclude>
+
+<freInclude name="c96_1152_scaling">
+        <run days="8">
+                <resources jobWallclock="00:30:00">
+                <atm ranks="576" threads="2"    layout = "4,24"    io_layout = "1,4" />
+                <lnd                            layout = "4,24"    io_layout = "1,4" />
+                <ocn ranks="0"    threads="0"   layout = "144,4"   io_layout = "1,4" /> 
+                <ice                            layout = "144,4"   io_layout = "1,4" />
+                </resources>
+        </run>
+</freInclude>
+<freInclude name="c96_1728_scaling">
+        <run days="8">
+                <resources jobWallclock="00:30:00">
+                <atm ranks="864" threads="2"    layout = "6,24"    io_layout = "1,4" />
+                <lnd                            layout = "6,24"    io_layout = "1,4" />
+                <ocn ranks="0"    threads="0"   layout = "144,6"   io_layout = "1,3" /> 
+                <ice                            layout = "144,6"   io_layout = "1,3" />
+                </resources>
+        </run>
+</freInclude>
+<freInclude name="c96_2304_scaling">
+        <run days="8">
+                <resources jobWallclock="00:30:00">
+                <atm ranks="1152" threads="2"   layout = "12,16"   io_layout = "1,4" />
+                <lnd                            layout = "12,16"   io_layout = "1,4" />
+                <ocn ranks="0"    threads="0"   layout = "144,8"   io_layout = "1,4" /> 
+                <ice                            layout = "144,8"   io_layout = "1,4" />
+                </resources>
+        </run>
+</freInclude>
+<freInclude name="c96_3456_scaling">
+        <run days="8">
+                <resources jobWallclock="00:30:00">
+                <atm ranks="1728" threads="2"   layout = "12,24"   io_layout = "1,4" />
+                <lnd                            layout = "12,24"   io_layout = "1,4" />
+                <ocn ranks="0"    threads="0"   layout = "144,12"  io_layout = "1,4" /> 
+                <ice                            layout = "144,12"  io_layout = "1,4" />
+                </resources>
+        </run>
+</freInclude>
+<freInclude name="c96_4608_scaling">
+        <run days="8">
+                <resources jobWallclock="00:30:00">
+                <atm ranks="1152" threads="4"   layout = "8,24"    io_layout = "1,4" />
+                <lnd                            layout = "8,24"    io_layout = "1,4" />
+                <ocn ranks="0"    threads="0"   layout = "96,12"   io_layout = "1,4" /> 
+                <ice                            layout = "96,12"   io_layout = "1,4" />
+                </resources>
+        </run>
+</freInclude>
+<freInclude name="c96_6912_scaling">
+        <run days="8">
+                <resources jobWallclock="00:30:00">
+                <atm ranks="3456" threads="2"   layout = "24,24"   io_layout = "1,4" />
+                <lnd                            layout = "24,24"   io_layout = "1,4" />
+                <ocn ranks="0"    threads="0"   layout = "144,24"  io_layout = "1,4" /> 
+                <ice                            layout = "144,24"  io_layout = "1,4" />
+                </resources>
+        </run>
+</freInclude>
+
+<freInclude name="c96_216_timing">
+        <run months="1">
+                <resources jobWallclock="02:00:00">
+                <atm ranks="216" threads="1"    layout = "3,12"    io_layout = "1,4" />
+                <lnd                            layout = "3,12"    io_layout = "1,4" />
+                <ocn ranks="0"   threads="0"    layout = "72,3"    io_layout = "1,3" />
+                <ice                            layout = "72,3"    io_layout = "1,3" />
+                </resources>
+        </run>
+</freInclude>
+<freInclude name="c96_384_timing">
+        <run months="1">
+                <resources jobWallclock="02:00:00">
+                <atm ranks="192" threads="2"    layout = "4,8"     io_layout = "1,4" />
+                <lnd                            layout = "4,8"     io_layout = "1,4" />
+                <ocn ranks="0"   threads="0"    layout = "64,3"    io_layout = "1,3" /> 
+                <ice                            layout = "64,3"    io_layout = "1,3" />
+                </resources>
+        </run>
+</freInclude> 
+<freInclude name="c96_432_timing">
+       <run months="1">
+                <resources jobWallclock="02:00:00">
+                <atm ranks="432" threads="1"    layout = "3,24"    io_layout = "1,4" />
+                <lnd                            layout = "3,24"    io_layout = "1,4" />
+                <ocn ranks="0"   threads="0"    layout = "144,3"   io_layout = "1,3" />
+                <ice                            layout = "144,3"   io_layout = "1,3" />
+                </resources>
+        </run>
+</freInclude>
+<freInclude name="c96_864_timing">
+        <run months="1">
+                <resources jobWallclock="01:00:00">
+                <atm ranks="432" threads="2"    layout = "3,24"    io_layout = "1,4" />
+                <lnd                            layout = "3,24"    io_layout = "1,4" />
+                <ocn ranks="0"   threads="0"    layout = "144,3"   io_layout = "1,3" />
+                <ice                            layout = "144,3"   io_layout = "1,3" />
+                </resources>
+        </run>
+</freInclude>
+<freInclude name="c96_1152_timing">
+        <run months="1">
+                <resources jobWallclock="00:45:00">
+                <atm ranks="576" threads="2"    layout = "4,24"    io_layout = "1,4" />
+                <lnd                            layout = "4,24"    io_layout = "1,4" />
+                <ocn ranks="0"    threads="0"   layout = "144,4"   io_layout = "1,4" /> 
+                <ice                            layout = "144,4"   io_layout = "1,4" />
+                </resources>
+        </run>
+</freInclude>
+<freInclude name="c96_1728_timing">
+        <run months="1">
+                <resources jobWallclock="00:34:00">
+                <atm ranks="864" threads="2"    layout = "6,24"    io_layout = "1,4" />
+                <lnd                            layout = "6,24"    io_layout = "1,4" />
+                <ocn ranks="0"    threads="0"   layout = "144,6"   io_layout = "1,3" /> 
+                <ice                            layout = "144,6"   io_layout = "1,3" />
+                </resources>
+        </run>
+</freInclude>
+<freInclude name="c96_2304_timing">
+        <run months="1">
+                <resources jobWallclock="00:30:00">
+                <atm ranks="1152" threads="2"   layout = "12,16"   io_layout = "1,4" />
+                <lnd                            layout = "12,16"   io_layout = "1,4" />
+                <ocn ranks="0"    threads="0"   layout = "144,8"   io_layout = "1,4" /> 
+                <ice                            layout = "144,8"   io_layout = "1,4" />
+                </resources>
+        </run>
+</freInclude>
+<freInclude name="c96_3456_timing">
+        <run months="1">
+                <resources jobWallclock="00:30:00">
+                <atm ranks="1728" threads="2"   layout = "12,24"   io_layout = "1,4" />
+                <lnd                            layout = "12,24"   io_layout = "1,4" />
+                <ocn ranks="0"    threads="0"   layout = "144,12"  io_layout = "1,4" /> 
+                <ice                            layout = "144,12"  io_layout = "1,4" />
+                </resources>
+        </run>
+</freInclude>
+<freInclude name="c96_4608_timing">
+        <run months="1">
+                <resources jobWallclock="00:30:00">
+                <atm ranks="1152" threads="4"   layout = "8,24"    io_layout = "1,4" />
+                <lnd                            layout = "8,24"    io_layout = "1,4" />
+                <ocn ranks="0"    threads="0"   layout = "96,12"   io_layout = "1,4" /> 
+                <ice                            layout = "96,12"   io_layout = "1,4" />
+                </resources>
+        </run>
+</freInclude>
+<freInclude name="c96_6912_timing">
+        <run months="1">
+                <resources jobWallclock="00:30:00">
+                <atm ranks="3456" threads="2"   layout = "24,24"   io_layout = "1,4" />
+                <lnd                            layout = "24,24"   io_layout = "1,4" />
+                <ocn ranks="0"    threads="0"   layout = "144,24"  io_layout = "1,4" /> 
+                <ice                            layout = "144,24"  io_layout = "1,4" />
+                </resources>
+        </run>
+</freInclude>
+
+<freInclude name="c96_240_timing">
+        <run months="1">
+                <resources jobWallclock="02:00:00">
+                <atm ranks="240" threads="1"    layout = "2,20"    io_layout = "1,4" />
+                <lnd                            layout = "2,20"    io_layout = "1,4" />
+                <ocn ranks="0"   threads="0"    layout = "80,3"    io_layout = "1,3" />
+                <ice                            layout = "80,3"    io_layout = "1,3" />
+                </resources>
+        </run>
+</freInclude>
+<freInclude name="c96_360_timing">
+        <run months="1">
+                <resources jobWallclock="02:00:00">
+                <atm ranks="180" threads="2"    layout = "5,6"     io_layout = "1,3" />
+                <lnd                            layout = "5,6"     io_layout = "1,3" />
+                <ocn ranks="0"   threads="0"    layout = "60,3"    io_layout = "1,3" />
+                <ice                            layout = "60,3"    io_layout = "1,3" />
+                </resources>
+        </run>
+</freInclude>
+<freInclude name="c96_480_timing">
+        <run months="1">
+                <resources jobWallclock="02:00:00">
+                <atm ranks="480" threads="1"    layout = "4,20"    io_layout = "1,4" />
+                <lnd                            layout = "4,20"    io_layout = "1,4" />
+                <ocn ranks="0"   threads="0"    layout = "80,6"    io_layout = "1,3" />
+                <ice                            layout = "80,6"    io_layout = "1,3" />
+                </resources>
+        </run>
+</freInclude>
+<freInclude name="c96_720_timing">
+        <run months="1">
+                <resources jobWallclock="02:00:00">
+                <atm ranks="360" threads="2"    layout = "5,12"    io_layout = "1,4" />
+                <lnd                            layout = "5,12"    io_layout = "1,4" />
+                <ocn ranks="0"   threads="0"    layout = "60,6"    io_layout = "1,3" />
+                <ice                            layout = "60,6"    io_layout = "1,3" />
+                </resources>
+        </run>
+</freInclude>
+<freInclude name="c96_960_timing">
+        <run months="1">
+                <resources jobWallclock="02:00:00">
+                <atm ranks="480" threads="2"    layout = "4,20"    io_layout = "1,4" />
+                <lnd                            layout = "4,20"    io_layout = "1,4" />
+                <ocn ranks="0"   threads="0"    layout = "80,6"    io_layout = "1,3" />
+                <ice                            layout = "80,6"    io_layout = "1,3" />
+                </resources>
+        </run>
+</freInclude>
+<freInclude name="c96_1440_timing">
+        <run months="1">
+                <resources jobWallclock="02:00:00">
+                <atm ranks="720" threads="2"    layout = "5,24"    io_layout = "1,4" />
+                <lnd                            layout = "5,24"    io_layout = "1,4" />
+                <ocn ranks="0"   threads="0"    layout = "60,12"   io_layout = "1,3" />
+                <ice                            layout = "60,12"   io_layout = "1,3" />
+                </resources>
+        </run>
+</freInclude>
+<freInclude name="c96_1920_timing">
+        <run months="1">
+                <resources jobWallclock="02:00:00">
+                <atm ranks="960" threads="2"    layout = "4,40"    io_layout = "1,4" />
+                <lnd                            layout = "4,40"    io_layout = "1,4" />
+                <ocn ranks="0"   threads="0"    layout = "80,12"   io_layout = "1,3" />
+                <ice                            layout = "80,12"   io_layout = "1,3" />
+                </resources>
+        </run>
+</freInclude>
+<freInclude name="c96_2880_timing">
+        <run months="1">
+                <resources jobWallclock="02:00:00">
+                <atm ranks="720" threads="4"    layout = "5,24"    io_layout = "1,4" />
+                <lnd                            layout = "5,24"    io_layout = "1,4" />
+                <ocn ranks="0"   threads="0"    layout = "60,12"   io_layout = "1,3" />
+                <ice                            layout = "60,12"   io_layout = "1,3" />
+                </resources>
+        </run>
+</freInclude>
+<freInclude name="c96_3840_timing">
+        <run months="1">
+                <resources jobWallclock="02:00:00">
+                <atm ranks="1920" threads="2"   layout = "16,20"    io_layout = "1,4" />
+                <lnd                            layout = "16,20"    io_layout = "1,4" />
+                <ocn ranks="0"   threads="0"    layout = "160,12"   io_layout = "1,3" />
+                <ice                            layout = "160,12"   io_layout = "1,3" />
+                </resources>
+        </run>
+</freInclude>
+<freInclude name="c96_5760_timing">
+        <run months="1">
+                <resources jobWallclock="02:00:00">
+                <atm ranks="2880" threads="2"   layout = "20,24"    io_layout = "1,4" />
+                <lnd                            layout = "20,24"    io_layout = "1,4" />
+                <ocn ranks="0"   threads="0"    layout = "240,12"   io_layout = "1,3" />
+                <ice                            layout = "240,12"   io_layout = "1,3" />
+                </resources>
+        </run>
+</freInclude>
+
+
+
+<!--================================-->
+<!--= LAYOUTS FOR C192 EXPERIMENTS =-->
+<!--================================-->
+<freInclude name="c192_2304_production">
+        <resources site="ncrc3" jobWallclock="16:00:00"
+                   segRuntime="2:50:00" >
+                <atm ranks="1152" threads="2"   layout = "8,24"    io_layout = "1,4" />
+                <lnd                            layout = "8,24"    io_layout = "1,4" />
+                <ocn ranks="0"    threads="0"   layout = "144,8"   io_layout = "1,4" /> 
+                <ice                            layout = "144,8"   io_layout = "1,4" />
+        </resources>
+        <resources site="ncrc4" jobWallclock="16:00:00"
+                   segRuntime="2:50:00" >
+                <atm ranks="1152" threads="2"   layout = "8,24"    io_layout = "1,4" />
+                <lnd                            layout = "8,24"    io_layout = "1,4" />
+                <ocn ranks="0"    threads="0"   layout = "144,8"   io_layout = "1,4" /> 
+                <ice                            layout = "144,8"   io_layout = "1,4" />
+        </resources>
+        <resources site="orion" jobWallclock="08:00:00"
+                   segRuntime="2:50:00" >
+                <atm ranks="960" threads="2"    layout = "4,40"    io_layout = "1,4" />
+                <lnd                            layout = "4,40"    io_layout = "1,4" />
+                <ocn ranks="0"   threads="0"    layout = "80,12"   io_layout = "1,3" />
+                <ice                            layout = "80,12"   io_layout = "1,3" />
+        </resources>
+</freInclude>
+
+<freInclude name="c192_864_basic">
+        <run days="8">
+                <resources jobWallclock="00:30:00">
+                <atm ranks="864" threads="1"    layout = "6,24"    io_layout = "1,4" />
+                <lnd                            layout = "6,24"    io_layout = "1,4" />
+                <ocn ranks="0"   threads="0"    layout = "144,6"   io_layout = "1,3" /> 
+                <ice                            layout = "144,6"   io_layout = "1,3" />
+                </resources>
+        </run>
+</freInclude>
+
+<freInclude name="c192_1152_debug">
+        <run days="2">
+                <resources jobWallclock="03:00:00">
+                <atm ranks="1152" threads="1"   layout = "8,24"    io_layout = "1,4" />
+                <lnd                            layout = "8,24"    io_layout = "1,4" />
+                <ocn ranks="0"    threads="0"   layout = "144,8"   io_layout = "1,4" /> 
+                <ice                            layout = "144,8"   io_layout = "1,4" />
+                </resources>
+        </run>
+</freInclude>
+
+<freInclude name="c192_864_restart">
+        <run days="4 4">
+                <resources jobWallclock="00:30:00">
+                <atm ranks="864" threads="1"    layout = "6,24"    io_layout = "1,4" />
+                <lnd                            layout = "6,24"    io_layout = "1,4" />
+                <ocn ranks="0"   threads="0"    layout = "144,6"   io_layout = "1,3" /> 
+                <ice                            layout = "144,6"   io_layout = "1,3" />
+                </resources>
+        </run>
+</freInclude>
+
+<freInclude name="c192_1152_restart">
+        <run days="4 4">
+                <resources jobWallclock="00:30:00">
+                <atm ranks="1152" threads="1"   layout = "8,24"    io_layout = "1,4" />
+                <lnd                            layout = "8,24"    io_layout = "1,4" />
+                <ocn ranks="0"    threads="0"   layout = "144,8"   io_layout = "1,4" /> 
+                <ice                            layout = "144,8"   io_layout = "1,4" />
+                </resources>
+        </run>
+</freInclude>
+
+<freInclude name="c192_384_scaling">
+        <run days="8">
+                <resources jobWallclock="01:00:00">
+                <atm ranks="192" threads="2"    layout = "4,8"     io_layout = "1,4" />
+                <lnd                            layout = "4,8"     io_layout = "1,4" />
+                <ocn ranks="0"   threads="0"    layout = "64,3"    io_layout = "1,3" /> 
+                <ice                            layout = "64,3"    io_layout = "1,3" />
+                </resources>
+        </run> 
+</freInclude>
+<freInclude name="c192_2304_scaling">
+        <run days="8">
+                <resources jobWallclock="00:30:00">
+                <atm ranks="1152" threads="2"   layout = "8,24"    io_layout = "1,4" />
+                <lnd                            layout = "8,24"    io_layout = "1,4" />
+                <ocn ranks="0"    threads="0"   layout = "144,8"   io_layout = "1,4" /> 
+                <ice                            layout = "144,8"   io_layout = "1,4" />
+                </resources>
+        </run>
+</freInclude>
+<freInclude name="c192_3456_scaling">
+        <run days="8">
+                <resources jobWallclock="00:30:00">
+                <atm ranks="864" threads="4"    layout = "6,24"    io_layout = "1,4" />
+                <lnd                            layout = "6,24"    io_layout = "1,4" />
+                <ocn ranks="0"    threads="0"   layout = "144,6"   io_layout = "1,3" /> 
+                <ice                            layout = "144,6"   io_layout = "1,3" />
+                </resources>
+        </run>
+</freInclude>
+<freInclude name="c192_4608_scaling">
+        <run days="8">
+                <resources jobWallclock="00:30:00">
+                <atm ranks="1152" threads="4"   layout = "12,16"   io_layout = "1,4" />
+                <lnd                            layout = "12,16"   io_layout = "1,4" />
+                <ocn ranks="0"    threads="0"   layout = "144,8"   io_layout = "1,4" /> 
+                <ice                            layout = "144,8"   io_layout = "1,4" />
+                </resources>
+        </run>
+</freInclude>
+<freInclude name="c192_6912_scaling">
+        <run days="8">
+                <resources jobWallclock="00:30:00">
+                <atm ranks="864" threads="8"    layout = "12,12"   io_layout = "1,4" />
+                <lnd                            layout = "12,12"   io_layout = "1,4" />
+                <ocn ranks="0"    threads="0"   layout = "144,6"   io_layout = "1,3" /> 
+                <ice                            layout = "144,6"   io_layout = "1,3" />
+                </resources>
+        </run>
+</freInclude>
+
+
+<freInclude name="c192_384_timing">
+        <run months="1">
+                <resources jobWallclock="03:00:00">
+                <atm ranks="192" threads="2"    layout = "4,8"     io_layout = "1,4" />
+                <lnd                            layout = "4,8"     io_layout = "1,4" />
+                <ocn ranks="0"    threads="0"   layout = "64,3"    io_layout = "1,3" /> 
+                <ice                            layout = "64,3"    io_layout = "1,3" />
+                </resources>
+        </run>
+</freInclude> 
+
+<freInclude name="c192_864_timing">
+        <run months="1">
+                <resources jobWallclock="02:00:00">
+                <atm ranks="864" threads="1"    layout = "6,24"    io_layout = "1,4" />
+                <lnd                            layout = "6,24"    io_layout = "1,4" />
+                <ocn ranks="0"    threads="0"   layout = "144,6"   io_layout = "1,3" /> 
+                <ice                            layout = "144,6"   io_layout = "1,3" />
+                </resources>
+        </run>
+</freInclude>
+<freInclude name="c192_1152_timing">
+        <run months="1">
+                <resources jobWallclock="01:45:00">
+                <atm ranks="1152" threads="1"   layout = "8,24"    io_layout = "1,4" />
+                <lnd                            layout = "8,24"    io_layout = "1,4" />
+                <ocn ranks="0"    threads="0"   layout = "144,8"   io_layout = "1,4" /> 
+                <ice                            layout = "144,8"   io_layout = "1,4" />
+                </resources>
+        </run>
+</freInclude>
+<freInclude name="c192_2304_timing">
+        <run months="1">
+                <resources jobWallclock="00:45:00">
+                <atm ranks="1152" threads="2"   layout = "8,24"    io_layout = "1,4" />
+                <lnd                            layout = "8,24"    io_layout = "1,4" />
+                <ocn ranks="0"    threads="0"   layout = "144,8"   io_layout = "1,4" /> 
+                <ice                            layout = "144,8"   io_layout = "1,4" />
+                </resources>
+        </run>
+</freInclude>
+<freInclude name="c192_3456_timing">
+        <run months="1">
+                <resources jobWallclock="00:45:00">
+                <atm ranks="864" threads="4"    layout = "6,24"    io_layout = "1,4" />
+                <lnd                            layout = "6,24"    io_layout = "1,4" />
+                <ocn ranks="0"    threads="0"   layout = "144,6"   io_layout = "1,3" /> 
+                <ice                            layout = "144,6"   io_layout = "1,3" />
+                </resources>
+        </run>
+</freInclude>
+<freInclude name="c192_4608_timing">
+        <run months="1">
+                <resources jobWallclock="00:30:00">
+                <atm ranks="1152" threads="4"   layout = "12,16"   io_layout = "1,4" />
+                <lnd                            layout = "12,16"   io_layout = "1,4" />
+                <ocn ranks="0"    threads="0"   layout = "144,8"   io_layout = "1,4" /> 
+                <ice                            layout = "144,8"   io_layout = "1,4" />
+                </resources>
+        </run>
+</freInclude>
+<freInclude name="c192_6912_timing">
+        <run months="1">
+                <resources jobWallclock="00:30:00">
+                <atm ranks="864" threads="8"    layout = "12,12"   io_layout = "1,4" />
+                <lnd                            layout = "12,12"   io_layout = "1,4" />
+                <ocn ranks="0"   threads="0"    layout = "144,6"   io_layout = "1,3" /> 
+                <ice                            layout = "144,6"   io_layout = "1,3" />
+                </resources>
+        </run>
+</freInclude>
+
+
+<!--================================-->
+<!--= TEMPLATES FOR POSTPROCESSING =-->
+<!--================================-->
+
+  <freInclude name="c96_amip_postprocess">
+    <postProcess>
+      <refineDiag script="$(AWG_INPUT_HOME_GFDL)/refineDiag/refineDiag_data_stager_globalAve.csh"/>
+      <component type="atmos" zInterp="era40" start="$(ANA_AMIP_START)" source="atmos_month" sourceGrid="atmos-cubedsphere" xyInterp="180,288">
+        <timeSeries freq="3hr" source="atmos_8xdaily" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/atmos8xDailyTS/*)"/>
+        </timeSeries>
+        <timeSeries freq="6hr" source="atmos_4xdaily" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/atmos4xDailyTS/*)"/>
+        </timeSeries>
+        <timeSeries freq="daily" source="atmos_daily" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/atmosDailyTS/*)"/>
+        </timeSeries>
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/atmosMonthTS/*)"/>
+        </timeSeries>
+        <timeAverage source="monthly" interval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_AMIP_LEN)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/atmosMonthAve/*)"/>
+        </timeAverage>
+        <timeAverage source="annual" interval="$(PP_AMIP_CHUNK)" calcInterval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="annual" interval="$(ANA_AMIP_LEN)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/atmosAnnualAve/*)"/>
+        </timeAverage>
+      </component>
+
+      <component type="atmos_level" start="$(ANA_AMIP_START)" source="atmos_month" sourceGrid="atmos-cubedsphere" xyInterp="180,288">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeSeries freq="annual" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/atmosLevelAnnualTS/*)"/>
+        </timeSeries>
+        <timeAverage source="monthly" interval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_AMIP_LEN)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/atmosLevelMonthAve/*)"/>
+        </timeAverage>
+      </component>
+
+      <component type="atmos_month_aer" start="$(ANA_AMIP_START)" source="atmos_month_aer" sourceGrid="atmos-cubedsphere" xyInterp="180,288" interpMethod="conserve_order1">
+        <timeAverage source="monthly" interval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_AMIP_LEN)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/atmosMonthAerAve/*)"/>
+        </timeAverage>
+      </component>
+
+      <component type="atmos_diurnal" start="$(ANA_AMIP_START)" source="atmos_diurnal" sourceGrid="atmos-cubedsphere" xyInterp="180,288">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_AMIP_LEN)"/>
+      </component>
+
+      <component type="atmos_scalar" start="$(ANA_AMIP_START)" source="atmos_scalar">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+      </component>
+
+<!-- FULL CHEMISTRY -->
+      <component type="tracer_level" start="$(ANA_AMIP_START)" source="atmos_tracer" sourceGrid="atmos-cubedsphere" xyInterp="180,288" interpMethod="conserve_order1">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeSeries freq="annual" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/tracerAnnualTS/*)"/>
+        </timeSeries>
+        <timeAverage source="monthly" interval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_AMIP_LEN)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/tracerMonthAve/*)"/>
+        </timeAverage>
+      </component>
+
+<!-- LAND -->
+      <component type="land" start="$(ANA_AMIP_START)" source="land_month" sourceGrid="land-cubedsphere" xyInterp="180,288" interpMethod="conserve_order1">
+        <timeSeries freq="daily" source="land_daily" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/landMonthTS/*)"/>
+        </timeSeries>
+        <timeAverage source="monthly" interval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_AMIP_LEN)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/landMonthAve/*)"/>
+        </timeAverage>
+      </component>
+
+      <component type="land_cubic" start="$(ANA_AMIP_START)" source="land_month" sourceGrid="land-cubedsphere">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)" >
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/landMonthTSNative/*)"/>
+        </timeSeries>
+        <timeSeries freq="daily" source="land_daily" chunkLength="$(PP_AMIP_CHUNK)"/>
+      </component>
+
+      <component type="land_instant_cubic" start="$(ANA_AMIP_START)" source="land_month_inst" sourceGrid="land-cubedsphere">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)" />
+      </component>
+
+<!-- RIVER -->
+      <component type="river" start="$(ANA_AMIP_START)" source="river_month" sourceGrid="land-cubedsphere" xyInterp="180,288" interpMethod="conserve_order1">
+        <timeSeries freq="daily" source="river_daily" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_AMIP_LEN)"/>
+      </component>
+
+      <component type="river_cubic" start="$(ANA_AMIP_START)" source="river_month" sourceGrid="land-cubedsphere">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)" >
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/riverMonthTSNative/*)"/>
+        </timeSeries>
+        <timeSeries freq="daily" source="river_daily" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/riverDailyTSNative/*)"/>
+        </timeSeries>
+      </component>
+
+      <component type="river_instant_cubic" start="$(ANA_AMIP_START)" source="river_month_inst" sourceGrid="land-cubedsphere">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)" />
+      </component>
+
+    </postProcess>
+  </freInclude>
+
+
+  <freInclude name="c96_amip_postprocess_qadt">
+    <postProcess>
+      <refineDiag script="$(AWG_INPUT_HOME_GFDL)/refineDiag/refineDiag_data_stager_globalAve.csh"/>
+      <component type="atmos" start="$(ANA_AMIP_START)" source="atmos_month" sourceGrid="atmos-cubedsphere" xyInterp="180,288">
+         <timeSeries freq="daily" source="atmos_daily" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/atmosDailyTS/*)"/>
+        </timeSeries>
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/atmosMonthTS/*)"/>
+        </timeSeries>
+        <timeAverage source="monthly" interval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_AMIP_LEN)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/atmosMonthAve/*)"/>
+        </timeAverage>
+        <timeAverage source="annual" interval="$(PP_AMIP_CHUNK)" calcInterval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="annual" interval="$(ANA_AMIP_LEN)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/atmosAnnualAve/*)"/>
+        </timeAverage>
+      </component>
+    </postProcess>
+  </freInclude>
+
+  <freInclude name="c96_amip_postprocess_cosp_qadt">
+    <postProcess>
+      <refineDiag script="$(AWG_INPUT_HOME_GFDL)/refineDiag/refineDiag_data_stager_globalAve.csh"/>
+      <component type="atmos" start="$(ANA_AMIP_START)" source="atmos_month" sourceGrid="atmos-cubedsphere" xyInterp="180,288">
+         <timeSeries freq="daily" source="atmos_daily" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/atmosDailyTS/*)"/>
+        </timeSeries>
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/atmosMonthTS/*)"/>
+        </timeSeries>
+        <timeAverage source="monthly" interval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_AMIP_LEN)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/atmosMonthAve/*)"/>
+        </timeAverage>
+        <timeAverage source="annual" interval="$(PP_AMIP_CHUNK)" calcInterval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="annual" interval="$(ANA_AMIP_LEN)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/atmosAnnualAve/*)"/>
+        </timeAverage>
+      </component>
+       <component type="atmos_daily_cmip" start="$(ANA_AMIP_START)" source="atmos_daily_cmip" sourceGrid="atmos-cubedsphere" xyInterp="180,288" cmip="on">
+        <timeSeries freq="daily" source="atmos_daily_cmip" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/atmosDailyTScmip/*)"/>
+        </timeSeries>
+
+      </component>
+
+   </postProcess>
+  </freInclude>
+
+ 
+ <freInclude name="c96_amip_postprocess_cosp">
+    <postProcess>
+      <refineDiag script="$(AWG_INPUT_HOME_GFDL)/refineDiag/refineDiag_data_stager_globalAve.csh"/>
+      <component type="atmos" start="2005" source="atmos_month" sourceGrid="atmos-cubedsphere" xyInterp="180,288">
+         <timeSeries freq="daily" source="atmos_daily" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/atmosDailyTS/*)"/>
+        </timeSeries>
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/atmosMonthTS/*)"/>
+        </timeSeries>
+        <timeAverage source="monthly" interval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_AMIP_LEN)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/atmosMonthAve/*)"/>
+        </timeAverage>
+        <timeAverage source="annual" interval="$(PP_AMIP_CHUNK)" calcInterval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="annual" interval="$(ANA_AMIP_LEN)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/atmosAnnualAve/*)"/>
+        </timeAverage>
+      </component>
+       <component type="atmos_daily_cmip" start="2005" source="atmos_daily_cmip" sourceGrid="atmos-cubedsphere" xyInterp="180,288" cmip="on">
+        <timeSeries freq="daily" source="atmos_daily_cmip" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/atmosDailyTScmip/*)"/>
+        </timeSeries>
+
+      </component>
+
+   </postProcess>
+  </freInclude>
+
+ 
+
+  <freInclude name="c96_climo_postprocess">
+    <postProcess>
+      <refineDiag script="$(AWG_INPUT_HOME_GFDL)/refineDiag/refineDiag_data_stager_globalAve.csh"/>
+      <component type="atmos" zInterp="era40" start="$(ANA_CLIMO_START)" source="atmos_month" sourceGrid="atmos-cubedsphere" xyInterp="180,288">
+        <timeSeries freq="3hr" source="atmos_8xdaily" chunkLength="$(PP_CLIMO_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_climo.xml" xpointer="xpointer(*/atmos8xDailyTS/*)"/>
+        </timeSeries>
+        <timeSeries freq="6hr" source="atmos_4xdaily" chunkLength="$(PP_CLIMO_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_climo.xml" xpointer="xpointer(*/atmos4xDailyTS/*)"/>
+        </timeSeries>
+        <timeSeries freq="daily" source="atmos_daily" chunkLength="$(PP_CLIMO_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_climo.xml" xpointer="xpointer(*/atmosDailyTS/*)"/>
+        </timeSeries>
+        <timeSeries freq="monthly" chunkLength="$(PP_CLIMO_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_climo.xml" xpointer="xpointer(*/atmosMonthTS/*)"/>
+        </timeSeries>
+        <timeAverage source="monthly" interval="$(PP_CLIMO_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_CLIMO_LEN)">
+          <xi:include href="awg_include/analysis/analysis_climo.xml" xpointer="xpointer(*/atmosMonthAve/*)"/>
+        </timeAverage>
+        <timeAverage source="annual" interval="$(PP_CLIMO_CHUNK)" calcInterval="$(PP_CLIMO_CHUNK)"/>
+        <timeAverage source="annual" interval="$(ANA_CLIMO_LEN)">
+          <xi:include href="awg_include/analysis/analysis_climo.xml" xpointer="xpointer(*/atmosAnnualAve/*)"/>
+        </timeAverage>
+      </component>
+
+      <component type="atmos_level" start="$(ANA_CLIMO_START)" source="atmos_month" sourceGrid="atmos-cubedsphere" xyInterp="180,288">
+        <timeSeries freq="monthly" chunkLength="$(PP_CLIMO_CHUNK)"/>
+        <timeSeries freq="annual" chunkLength="$(PP_CLIMO_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_climo.xml" xpointer="xpointer(*/atmosLevelAnnualTS/*)"/>
+        </timeSeries>
+        <timeAverage source="monthly" interval="$(PP_CLIMO_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_CLIMO_LEN)">
+          <xi:include href="awg_include/analysis/analysis_climo.xml" xpointer="xpointer(*/atmosLevelMonthAve/*)"/>
+        </timeAverage>
+      </component>
+
+      <component type="atmos_month_aer" start="$(ANA_CLIMO_START)" source="atmos_month_aer" sourceGrid="atmos-cubedsphere" xyInterp="180,288" interpMethod="conserve_order1">
+        <timeAverage source="monthly" interval="$(PP_CLIMO_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_CLIMO_LEN)">
+          <xi:include href="awg_include/analysis/analysis_climo.xml" xpointer="xpointer(*/atmosMonthAerAve/*)"/>
+        </timeAverage>
+      </component>
+
+      <component type="atmos_diurnal" start="$(ANA_CLIMO_START)" source="atmos_diurnal" sourceGrid="atmos-cubedsphere" xyInterp="180,288">
+        <timeSeries freq="monthly" chunkLength="$(PP_CLIMO_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(PP_CLIMO_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_CLIMO_LEN)"/>
+      </component>
+
+      <component type="atmos_scalar" start="$(ANA_CLIMO_START)" source="atmos_scalar">
+        <timeSeries freq="monthly" chunkLength="$(PP_CLIMO_CHUNK)"/>
+      </component>
+
+<!-- FULL CHEMISTRY -->
+      <component type="tracer_level" start="$(ANA_CLIMO_START)" source="atmos_tracer" sourceGrid="atmos-cubedsphere" xyInterp="180,288" interpMethod="conserve_order1">
+        <timeSeries freq="monthly" chunkLength="$(PP_CLIMO_CHUNK)"/>
+        <timeSeries freq="annual" chunkLength="$(PP_CLIMO_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_climo.xml" xpointer="xpointer(*/tracerAnnualTS/*)"/>
+        </timeSeries>
+        <timeAverage source="monthly" interval="$(PP_CLIMO_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_CLIMO_LEN)">
+          <xi:include href="awg_include/analysis/analysis_climo.xml" xpointer="xpointer(*/tracerMonthAve/*)"/>
+        </timeAverage>
+      </component>
+
+<!-- LAND -->
+      <component type="land" start="$(ANA_CLIMO_START)" source="land_month" sourceGrid="land-cubedsphere" xyInterp="180,288" interpMethod="conserve_order1">
+        <timeSeries freq="daily" source="land_daily" chunkLength="$(PP_CLIMO_CHUNK)"/>
+        <timeSeries freq="monthly" chunkLength="$(PP_CLIMO_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_climo.xml" xpointer="xpointer(*/landMonthTS/*)"/>
+        </timeSeries>
+        <timeAverage source="monthly" interval="$(PP_CLIMO_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_CLIMO_LEN)">
+          <xi:include href="awg_include/analysis/analysis_climo.xml" xpointer="xpointer(*/landMonthAve/*)"/>
+        </timeAverage>
+      </component>
+
+      <component type="land_cubic" start="$(ANA_CLIMO_START)" source="land_month" sourceGrid="land-cubedsphere">
+        <timeSeries freq="monthly" chunkLength="$(PP_CLIMO_CHUNK)" >
+          <xi:include href="awg_include/analysis/analysis_climo.xml" xpointer="xpointer(*/landMonthTSNative/*)"/>
+        </timeSeries>
+        <timeSeries freq="daily" source="land_daily" chunkLength="$(PP_CLIMO_CHUNK)"/>
+      </component>
+
+      <component type="land_instant_cubic" start="$(ANA_CLIMO_START)" source="land_month_inst" sourceGrid="land-cubedsphere">
+        <timeSeries freq="monthly" chunkLength="$(PP_CLIMO_CHUNK)" />
+      </component>
+
+<!-- RIVER -->
+      <component type="river" start="$(ANA_CLIMO_START)" source="river_month" sourceGrid="land-cubedsphere" xyInterp="180,288" interpMethod="conserve_order1">
+        <timeSeries freq="daily" source="river_daily" chunkLength="$(PP_CLIMO_CHUNK)"/>
+        <timeSeries freq="monthly" chunkLength="$(PP_CLIMO_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(PP_CLIMO_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_CLIMO_LEN)"/>
+      </component>
+
+      <component type="river_cubic" start="$(ANA_CLIMO_START)" source="river_month" sourceGrid="land-cubedsphere">
+        <timeSeries freq="monthly" chunkLength="$(PP_CLIMO_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_climo.xml" xpointer="xpointer(*/riverMonthTSNative/*)"/>
+        </timeSeries>
+        <timeSeries freq="daily" source="river_daily" chunkLength="$(PP_CLIMO_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_climo.xml" xpointer="xpointer(*/riverDailyTSNative/*)"/>
+        </timeSeries>
+      </component>
+
+      <component type="river_instant_cubic" start="$(ANA_CLIMO_START)" source="river_month_inst" sourceGrid="land-cubedsphere">
+        <timeSeries freq="monthly" chunkLength="$(PP_CLIMO_CHUNK)" />
+      </component>
+
+    </postProcess>
+  </freInclude>
+
+
+<!--
+  postprocessing for CMIP6 diagnostic output
+-->
+ <freInclude name="c96_amip_postprocess_cmip6">
+    <postProcess>
+      <refineDiag script="$(AWG_INPUT_HOME_GFDL)/refineDiag/refineDiag_data_stager_globalAve.csh"/>
+      <refineDiag script="$(AWG_INPUT_HOME_GFDL)/refineDiag/refineDiag_atmos_cmip6.csh"/>
+
+      <component type="atmos_cmip" start="$(ANA_AMIP_START)" source="atmos_month_cmip" sourceGrid="atmos-cubedsphere" xyInterp="180,288" cmip="on">
+       <!--
+        <timeSeries freq="3hr" source="atmos_8xdaily_cmip" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/atmos8xDailyTScmip/*)"/>
+        </timeSeries>
+        <timeSeries freq="3hr" source="atmos_8xdaily_inst" chunkLength="$(PP_AMIP_CHUNK)"/>
+       -->
+
+            <!-- 6hrLevPt, no data at 3 pressure levels Plev3 => no need atmos_4xdaily_cmip refineDiag -->
+        <timeSeries freq="6hr" source="atmos_4xdaily_refined" chunkLength="$(PP_AMIP_CHUNK)">
+          <variables>
+             ta ua va rv850
+          </variables>
+        </timeSeries>
+
+        <timeSeries freq="6hr" source="atmos_4xdaily_cmip" chunkLength="$(PP_AMIP_CHUNK)">
+          <variables>
+             rv850_unmsk psl zg500
+          </variables>
+        </timeSeries>
+
+        <timeSeries freq="daily" source="atmos_daily_cmip" chunkLength="$(PP_AMIP_CHUNK)">
+          <variables> 
+             huss tasmin tasmax tas pr psl sfcWind hurs hursmin hursmax clt tslsi prc prsn uas vas sfcWindmax hfls hfss rlds rlus rsds rsus rlut  
+          </variables>
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/atmosDailyTScmip/*)"/>
+        </timeSeries>
+
+        <timeSeries freq="monthly" source="atmos_month_refined" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/atmosMonthTScmip/*)"/>
+        </timeSeries>
+        <timeAverage source="monthly" interval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_AMIP_LEN)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/atmosMonthAVcmip/*)"/>
+        </timeAverage>
+        <timeAverage source="annual" interval="$(PP_AMIP_CHUNK)" calcInterval="$(PP_AMIP_CHUNK)"/>
+      </component>
+
+      <component type="atmos_cmip_2deg_daily_2D" start="$(ANA_AMIP_START)" source="atmos_daily_cmip" sourceGrid="atmos-cubedsphere" xyInterp="90,144" cmip="on">
+        <timeSeries freq="daily" source="atmos_daily_cmip" chunkLength="$(PP_AMIP_CHUNK)">
+          <variables>
+                 <!-- diag_table_day, 2D field at both 2-deg and 1-deg resolution-->
+             huss tasmin tasmax tas pr psl sfcWind hurs hursmin hursmax clt tslsi prc prsn uas vas sfcWindmax hfls hfss rlds rlus rsds rsus rlut 
+                 <!-- diag_table_CFday,  2D outputs at 2-deg resolution -->
+             ps rsdt rsut rsdscs rsuscs rldscs rlutcs rsutcs clwvi clivi wap500 ta700_unmsk ccb cct 
+                     <!-- cltisccp albisccp pctisccp cltcalipso cllcalipso clmcalipso clhcalipso -->
+                 <!-- diag_table_Eday,  2D outputs at 2-deg resolution -->
+             rsdsdiff rsdscsdiff cldnvi ts prw
+          </variables>
+        </timeSeries>
+
+        <timeSeries freq="daily" source="atmos_daily_refined" chunkLength="$(PP_AMIP_CHUNK)">
+          <variables>
+                 <!-- diag_table_CFday,  2D outputs at 2-deg resolution -->
+             ta700 
+          </variables>
+        </timeSeries>
+      </component>
+
+      <component type="atmos_cmip_2deg_daily_3D" start="$(ANA_AMIP_START)" source="atmos_daily_cmip" sourceGrid="atmos-cubedsphere" xyInterp="90,144" cmip="on">
+            <!-- diag_table_day, at plev19 -->
+        <timeSeries freq="daily" source="atmos_daily_refined" chunkLength="$(PP_AMIP_CHUNK)">
+          <variables>
+             hur hus ta ua va wap albs
+          </variables>
+          <xi:include href="./awg_include/analysis/analysis_cpld.xml" xpointer="xpointer(*/atmosDaily3DTScmip/*)">
+            <xi:fallback/>
+          </xi:include>
+        </timeSeries>
+      </component>
+
+      <component type="atmos" zInterp="era40" start="$(ANA_AMIP_START)" source="atmos_month" sourceGrid="atmos-cubedsphere" xyInterp="180,288" cmip="off">
+        <timeSeries freq="6hr" source="atmos_4xdaily" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/atmos4xDailyTS/*)"/>
+        </timeSeries>
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/atmosMonthTS/*)"/>
+        </timeSeries>
+        <timeAverage source="monthly" interval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_AMIP_LEN)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/atmosMonthAV/*)"/>
+        </timeAverage>
+        <timeAverage source="annual" interval="$(PP_AMIP_CHUNK)" calcInterval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="annual" interval="$(ANA_AMIP_LEN)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/atmosAnnualAV/*)"/>
+        </timeAverage>
+      </component>
+
+      <component type="atmos_level_cmip" start="$(ANA_AMIP_START)" source="atmos_level_cmip" sourceGrid="atmos-cubedsphere" xyInterp="180,288" cmip="on">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+      </component>
+
+<!-- 6hrLev (model level) not requested for piControl
+      <component type="atmos_level_cmip_2deg_6hr" start="$(ANA_AMIP_START)" source="atmos_level_cmip" sourceGrid="atmos-cubedsphere" xyInterp="90,144" cmip="on">
+             6hrLev, at native model vertical levels (i.e., 33 levels) 
+        <timeSeries freq="6hr" source="atmos_4xdaily_inst" chunkLength="$(PP_AMIP_CHUNK)"/>            
+      </component>
+-->
+
+      <component type="atmos_level_cmip_2deg_daily" start="$(ANA_AMIP_START)" source="atmos_level_cmip" sourceGrid="atmos-cubedsphere" xyInterp="90,144" cmip="on">
+            <!-- diag_table_CFday,  3D native model vertical level (33 levels) outputs -->
+        <timeSeries freq="daily" source="atmos_level_daily_cmip" chunkLength="$(PP_AMIP_CHUNK)">
+          <variables> 
+             ua va ta hus wap zg hur cl clw cli mc
+          </variables>
+        </timeSeries>
+      </component>
+
+      <component type="atmos_level" start="$(ANA_AMIP_START)" source="atmos_month" sourceGrid="atmos-cubedsphere" xyInterp="180,288" cmip="off">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeSeries freq="annual" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/atmosLevelAnnualTS/*)"/>
+        </timeSeries>
+        <timeAverage source="monthly" interval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_AMIP_LEN)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/atmosLevelMonthAV/*)"/>
+        </timeAverage>
+      </component>
+
+      <component type="atmos_month_aer" start="$(ANA_AMIP_START)" source="atmos_month_aer" sourceGrid="atmos-cubedsphere" xyInterp="180,288" interpMethod="conserve_order1"  cmip="on">
+        <timeAverage source="monthly" interval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_AMIP_LEN)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/atmosMonthAerAV/*)"/>
+        </timeAverage>
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+      </component>
+
+      <component type="atmos_diurnal_cmip" start="$(ANA_AMIP_START)"  source="atmos_diurnal_cmip" sourceGrid="atmos-cubedsphere" xyInterp="180,288" cmip="on">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+      </component>
+
+      <component type="atmos_diurnal" start="$(ANA_AMIP_START)" source="atmos_diurnal" sourceGrid="atmos-cubedsphere" xyInterp="180,288">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+      </component>
+
+      <component type="atmos_scalar" start="$(ANA_AMIP_START)" source="atmos_scalar" cmip="on">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeSeries freq="monthly" source="atmos_global_cmip" chunkLength="$(PP_AMIP_CHUNK)"/>
+      </component>
+
+<!-- FULL CHEMISTRY -->
+      <component type="tracer_level" start="$(ANA_AMIP_START)" source="atmos_tracer" sourceGrid="atmos-cubedsphere" xyInterp="180,288" interpMethod="conserve_order1" cmip="on">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeSeries freq="annual" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/tracerAnnualTS/*)"/>
+        </timeSeries>
+        <timeAverage source="monthly" interval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_AMIP_LEN)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/tracerMonthAV/*)"/>
+        </timeAverage>
+      </component>
+
+      <component type="aerosol_cmip" start="$(ANA_AMIP_START)" source="aerosol_month_cmip" sourceGrid="atmos-cubedsphere" xyInterp="180,288" interpMethod="conserve_order1" cmip="on">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)" source="aerosol_month_refined"/>
+      </component>
+
+      <component type="aerosol_cmip_2deg" start="$(ANA_AMIP_START)" source="aerosol_daily_cmip" sourceGrid="atmos-cubedsphere" xyInterp="90,144" interpMethod="conserve_order1" cmip="on">
+        <timeSeries freq="daily" source="aerosol_daily_cmip" chunkLength="$(PP_AMIP_CHUNK)"/>
+      </component>
+
+<!-- LAND -->
+      <component type="land" start="$(ANA_AMIP_START)" source="land_month" sourceGrid="land-cubedsphere" xyInterp="180,288" interpMethod="conserve_order1" cmip="off">
+        <timeSeries freq="daily" source="land_daily" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/landMonthTS/*)"/>
+        </timeSeries>
+        <timeAverage source="monthly" interval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_AMIP_LEN)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/landMonthAV/*)"/>
+        </timeAverage>
+      </component>
+
+      <component type="land_cubic" start="$(ANA_AMIP_START)" source="land_month" sourceGrid="land-cubedsphere" cmip="off"> 
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)" >
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/landMonthTSNative/*)"/>
+        </timeSeries>
+        <timeSeries freq="daily" source="land_daily" chunkLength="$(PP_AMIP_CHUNK)"/>
+      </component>
+
+      <component type="land_instant_cubic" start="$(ANA_AMIP_START)" source="land_month_inst" sourceGrid="land-cubedsphere" cmip="off"> 
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)" />
+      </component>
+
+      <component type="land_cmip" start="$(ANA_AMIP_START)" source="land_month_cmip" sourceGrid="land-cubedsphere" xyInterp="180,288" interpMethod="conserve_order1" cmip="on">
+        <timeSeries freq="daily" source="land_daily_cmip" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+      </component>
+
+      <component type="land_cmip_2deg" start="$(ANA_AMIP_START)" source="land_month_cmip" sourceGrid="land-cubedsphere" xyInterp="90,144" interpMethod="conserve_order1" cmip="on">
+        <timeSeries freq="daily" source="land_daily_cmip" chunkLength="$(PP_AMIP_CHUNK)"/>
+      </component>
+
+<!-- RIVER -->
+      <component type="river" start="$(ANA_AMIP_START)" source="river_month" sourceGrid="land-cubedsphere" xyInterp="180,288" interpMethod="conserve_order1" cmip="on">
+        <timeSeries freq="daily" source="river_daily" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+      </component>
+
+      <component type="river_cubic" start="$(ANA_AMIP_START)" source="river_month" sourceGrid="land-cubedsphere" cmip="off">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)" >
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/riverMonthTSNative/*)"/>
+        </timeSeries>
+        <timeSeries freq="daily" source="river_daily" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/riverDailyTSNative/*)"/>
+        </timeSeries>
+      </component>
+
+      <component type="river_instant_cubic" start="$(ANA_AMIP_START)" source="river_month_inst" sourceGrid="land-cubedsphere" cmip="off">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)" />
+      </component>
+
+<!--
+      <component type="land_month_past" start="$(ANA_AMIP_START)" source="land_month_past" sourceGrid="land-cubedsphere" xyInterp="180,288" interpMethod="conserve_order1" cmip="on">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+      </component>
+      <component type="land_month_inst_past" start="$(ANA_AMIP_START)" source="land_month_inst_past" sourceGrid="land-cubedsphere" xyInterp="180,288" interpMethod="conserve_order1" cmip="on">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+      </component>
+
+      <component type="land_month_crop" start="$(ANA_AMIP_START)" source="land_month_crop" sourceGrid="land-cubedsphere" xyInterp="180,288" interpMethod="conserve_order1" cmip="on">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+      </component>
+      <component type="land_month_inst_crop" start="$(ANA_AMIP_START)" source="land_month_inst_crop" sourceGrid="land-cubedsphere" xyInterp="180,288" interpMethod="conserve_order1" cmip="on">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+      </component>
+
+      <component type="land_month_ntrl" start="$(ANA_AMIP_START)" source="land_month_ntrl" sourceGrid="land-cubedsphere" xyInterp="180,288" interpMethod="conserve_order1" cmip="on">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+      </component>
+      <component type="land_month_inst_ntrl" start="$(ANA_AMIP_START)" source="land_month_inst_ntrl" sourceGrid="land-cubedsphere" xyInterp="180,288" interpMethod="conserve_order1" cmip="on">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+      </component>
+
+      <component type="land_month_scnd" start="$(ANA_AMIP_START)" source="land_month_scnd" sourceGrid="land-cubedsphere" xyInterp="180,288" interpMethod="conserve_order1" cmip="on">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+      </component>
+      <component type="land_month_inst_scnd" start="$(ANA_AMIP_START)" source="land_month_inst_scnd" sourceGrid="land-cubedsphere" xyInterp="180,288" interpMethod="conserve_order1" cmip="on">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+      </component>
+
+      <component type="LUmip_month_psl" start="$(ANA_AMIP_START)" source="lumip_Lmon_psl" sourceGrid="land-cubedsphere" xyInterp="180,288" interpMethod="conserve_order1" cmip="on">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+      </component>
+      <component type="LUmip_month_crp" start="$(ANA_AMIP_START)" source="lumip_Lmon_crp" sourceGrid="land-cubedsphere" xyInterp="180,288" interpMethod="conserve_order1" cmip="on">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+      </component>
+      <component type="LUmip_month_pst" start="$(ANA_AMIP_START)" source="lumip_Lmon_pst" sourceGrid="land-cubedsphere" xyInterp="180,288" interpMethod="conserve_order1" cmip="on">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+      </component>
+
+      <component type="LUmip_year_psl" start="$(ANA_AMIP_START)" source="lumip_Lyr_psl" sourceGrid="land-cubedsphere" xyInterp="180,288" interpMethod="conserve_order1" cmip="on">
+        <timeSeries freq="annual" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeSeries freq="annual" source="lumip_Lyr"  chunkLength="$(PP_AMIP_CHUNK)"/>
+      </component>
+      <component type="LUmip_year_crp" start="$(ANA_AMIP_START)" source="lumip_Lyr_crp" sourceGrid="land-cubedsphere" xyInterp="180,288" interpMethod="conserve_order1" cmip="on">
+        <timeSeries freq="annual" chunkLength="$(PP_AMIP_CHUNK)"/>
+      </component>
+      <component type="LUmip_year_pst" start="$(ANA_AMIP_START)" source="lumip_Lyr_pst" sourceGrid="land-cubedsphere" xyInterp="180,288" interpMethod="conserve_order1" cmip="on">
+        <timeSeries freq="annual" chunkLength="$(PP_AMIP_CHUNK)"/>
+      </component>
+-->
+
+    </postProcess>
+  </freInclude>
+
+ <freInclude name="c96_amip_postprocess_cmip6_qadt">
+    <postProcess>
+      <component type="atmos_cmip_2deg_daily_2D" start="$(ANA_AMIP_START)" source="atmos_daily_cmip" sourceGrid="atmos-cubedsphere" xyInterp="90,144" cmip="on">
+        <timeSeries freq="daily" source="atmos_daily_cmip" chunkLength="$(PP_AMIP_CHUNK)">
+          <variables>
+                 <!-- diag_table_day, 2D field at both 2-deg and 1-deg resolution-->
+             huss tasmin tasmax tas pr psl sfcWind hurs hursmin hursmax clt tslsi prc prsn uas vas sfcWindmax hfls hfss rlds rlus rsds rsus rlut 
+                 <!-- diag_table_CFday,  2D outputs at 2-deg resolution -->
+             ps rsdt rsut rsdscs rsuscs rldscs rlutcs rsutcs clwvi clivi wap500 ta700_unmsk ccb cct 
+                     <!-- cltisccp albisccp pctisccp cltcalipso cllcalipso clmcalipso clhcalipso -->
+                 <!-- diag_table_Eday,  2D outputs at 2-deg resolution -->
+             rsdsdiff rsdscsdiff cldnvi ts prw
+          </variables>
+        </timeSeries>
+     </component>
+
+      <component type="atmos_level_cmip" start="$(ANA_AMIP_START)" source="atmos_level_cmip" sourceGrid="atmos-cubedsphere" xyInterp="180,288" cmip="on">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+      </component>
+
+<!-- 6hrLev (model level) not requested for piControl
+      <component type="atmos_level_cmip_2deg_6hr" start="$(ANA_AMIP_START)" source="atmos_level_cmip" sourceGrid="atmos-cubedsphere" xyInterp="90,144" cmip="on">
+             6hrLev, at native model vertical levels (i.e., 33 levels) 
+        <timeSeries freq="6hr" source="atmos_4xdaily_inst" chunkLength="$(PP_AMIP_CHUNK)"/>            
+      </component>
+-->
+
+      <component type="atmos_level_cmip_2deg_daily" start="$(ANA_AMIP_START)" source="atmos_level_cmip" sourceGrid="atmos-cubedsphere" xyInterp="90,144" cmip="on">
+            <!-- diag_table_CFday,  3D native model vertical level (33 levels) outputs -->
+        <timeSeries freq="daily" source="atmos_level_daily_cmip" chunkLength="$(PP_AMIP_CHUNK)">
+          <variables> 
+             ua va ta hus wap zg hur cl clw cli mc
+          </variables>
+        </timeSeries>
+      </component>
+
+    </postProcess>
+  </freInclude>
+
+
+  <freInclude name="c192_amip_postprocess">
+    <postProcess>
+      <refineDiag script="$(AWG_INPUT_HOME_GFDL)/refineDiag/refineDiag_data_stager_globalAve.csh"/>
+      <component type="atmos" zInterp="era40" start="$(ANA_AMIP_START)" source="atmos_month" sourceGrid="atmos-cubedsphere" xyInterp="360,576">
+        <timeSeries freq="3hr" source="atmos_8xdaily" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/atmos8xDailyTS/*)"/>
+        </timeSeries>
+        <timeSeries freq="6hr" source="atmos_4xdaily" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/atmos4xDailyTS/*)"/>
+        </timeSeries>
+        <timeSeries freq="daily" source="atmos_daily" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/atmosDailyTS/*)"/>
+        </timeSeries>
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/atmosMonthTS/*)"/>
+        </timeSeries>
+        <timeAverage source="monthly" interval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_AMIP_LEN)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/atmosMonthAve/*)"/>
+        </timeAverage>
+        <timeAverage source="annual" interval="$(PP_AMIP_CHUNK)" calcInterval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="annual" interval="$(ANA_AMIP_LEN)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/atmosAnnualAve/*)"/>
+        </timeAverage>
+      </component>
+
+      <component type="atmos_level" start="$(ANA_AMIP_START)" source="atmos_month" sourceGrid="atmos-cubedsphere" xyInterp="360,576">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeSeries freq="annual" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/atmosLevelAnnualTS/*)"/>
+        </timeSeries>
+        <timeAverage source="monthly" interval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_AMIP_LEN)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/atmosLevelMonthAve/*)"/>
+        </timeAverage>
+      </component>
+
+      <component type="atmos_month_aer" start="$(ANA_AMIP_START)" source="atmos_month_aer" sourceGrid="atmos-cubedsphere" xyInterp="360,576" interpMethod="conserve_order1">
+        <timeAverage source="monthly" interval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_AMIP_LEN)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/atmosMonthAerAve/*)"/>
+        </timeAverage>
+      </component>
+
+      <component type="atmos_diurnal" start="$(ANA_AMIP_START)" source="atmos_diurnal" sourceGrid="atmos-cubedsphere" xyInterp="360,576">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_AMIP_LEN)"/>
+      </component>
+
+      <component type="atmos_scalar" start="$(ANA_AMIP_START)" source="atmos_scalar">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+      </component>
+
+<!-- FULL CHEMISTRY -->
+      <component type="tracer_level" start="$(ANA_AMIP_START)" source="atmos_tracer" sourceGrid="atmos-cubedsphere" xyInterp="360,576" interpMethod="conserve_order1">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeSeries freq="annual" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/tracerAnnualTS/*)"/>
+        </timeSeries>
+        <timeAverage source="monthly" interval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_AMIP_LEN)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/tracerMonthAve/*)"/>
+        </timeAverage>
+      </component>
+
+<!-- LAND -->
+      <component type="land" start="$(ANA_AMIP_START)" source="land_month" sourceGrid="land-cubedsphere" xyInterp="360,576" interpMethod="conserve_order1">
+        <timeSeries freq="daily" source="land_daily" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/landMonthTS/*)"/>
+        </timeSeries>
+        <timeAverage source="monthly" interval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_AMIP_LEN)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/landMonthAve/*)"/>
+        </timeAverage>
+      </component>
+
+      <component type="land_cubic" start="$(ANA_AMIP_START)" source="land_month" sourceGrid="land-cubedsphere">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)" >
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/landMonthTSNative/*)"/>
+        </timeSeries>
+        <timeSeries freq="daily" source="land_daily" chunkLength="$(PP_AMIP_CHUNK)"/>
+      </component>
+
+      <component type="land_instant_cubic" start="$(ANA_AMIP_START)" source="land_month_inst" sourceGrid="land-cubedsphere">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)" />
+      </component>
+
+<!-- RIVER -->
+      <component type="river" start="$(ANA_AMIP_START)" source="river_month" sourceGrid="land-cubedsphere" xyInterp="360,576" interpMethod="conserve_order1">
+        <timeSeries freq="daily" source="river_daily" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_AMIP_LEN)"/>
+      </component>
+
+      <component type="river_cubic" start="$(ANA_AMIP_START)" source="river_month" sourceGrid="land-cubedsphere">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/riverMonthTSNative/*)"/>
+        </timeSeries>
+        <timeSeries freq="daily" source="river_daily" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip.xml" xpointer="xpointer(*/riverDailyTSNative/*)"/>
+        </timeSeries>
+      </component>
+
+      <component type="river_instant_cubic" start="$(ANA_AMIP_START)" source="river_month_inst" sourceGrid="land-cubedsphere">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)" />
+      </component>
+
+    </postProcess>
+  </freInclude>
+
+  <freInclude name="c192_climo_postprocess">
+    <postProcess>
+      <refineDiag script="$(AWG_INPUT_HOME_GFDL)/refineDiag/refineDiag_data_stager_globalAve.csh"/>
+      <component type="atmos" zInterp="era40" start="$(ANA_CLIMO_START)" source="atmos_month" sourceGrid="atmos-cubedsphere" xyInterp="360,576">
+        <timeSeries freq="3hr" source="atmos_8xdaily" chunkLength="$(PP_CLIMO_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_climo.xml" xpointer="xpointer(*/atmos8xDailyTS/*)"/>
+        </timeSeries>
+        <timeSeries freq="6hr" source="atmos_4xdaily" chunkLength="$(PP_CLIMO_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_climo.xml" xpointer="xpointer(*/atmos4xDailyTS/*)"/>
+        </timeSeries>
+        <timeSeries freq="daily" source="atmos_daily" chunkLength="$(PP_CLIMO_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_climo.xml" xpointer="xpointer(*/atmosDailyTS/*)"/>
+        </timeSeries>
+        <timeSeries freq="monthly" chunkLength="$(PP_CLIMO_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_climo.xml" xpointer="xpointer(*/atmosMonthTS/*)"/>
+        </timeSeries>
+        <timeAverage source="monthly" interval="$(PP_CLIMO_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_CLIMO_LEN)">
+          <xi:include href="awg_include/analysis/analysis_climo.xml" xpointer="xpointer(*/atmosMonthAve/*)"/>
+        </timeAverage>
+        <timeAverage source="annual" interval="$(PP_CLIMO_CHUNK)" calcInterval="$(PP_CLIMO_CHUNK)"/>
+        <timeAverage source="annual" interval="$(ANA_CLIMO_LEN)">
+          <xi:include href="awg_include/analysis/analysis_climo.xml" xpointer="xpointer(*/atmosAnnualAve/*)"/>
+        </timeAverage>
+      </component>
+
+      <component type="atmos_level" start="$(ANA_CLIMO_START)" source="atmos_month" sourceGrid="atmos-cubedsphere" xyInterp="360,576">
+        <timeSeries freq="monthly" chunkLength="$(PP_CLIMO_CHUNK)"/>
+        <timeSeries freq="annual" chunkLength="$(PP_CLIMO_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_climo.xml" xpointer="xpointer(*/atmosLevelAnnualTS/*)"/>
+        </timeSeries>
+        <timeAverage source="monthly" interval="$(PP_CLIMO_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_CLIMO_LEN)">
+          <xi:include href="awg_include/analysis/analysis_climo.xml" xpointer="xpointer(*/atmosLevelMonthAve/*)"/>
+        </timeAverage>
+      </component>
+
+      <component type="atmos_month_aer" start="$(ANA_CLIMO_START)" source="atmos_month_aer" sourceGrid="atmos-cubedsphere" xyInterp="360,576" interpMethod="conserve_order1">
+        <timeAverage source="monthly" interval="$(PP_CLIMO_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_CLIMO_LEN)">
+          <xi:include href="awg_include/analysis/analysis_climo.xml" xpointer="xpointer(*/atmosMonthAerAve/*)"/>
+        </timeAverage>
+      </component>
+
+      <component type="atmos_diurnal" start="$(ANA_CLIMO_START)" source="atmos_diurnal" sourceGrid="atmos-cubedsphere" xyInterp="360,576">
+        <timeSeries freq="monthly" chunkLength="$(PP_CLIMO_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(PP_CLIMO_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_CLIMO_LEN)"/>
+      </component>
+
+      <component type="atmos_scalar" start="$(ANA_CLIMO_START)" source="atmos_scalar">
+        <timeSeries freq="monthly" chunkLength="$(PP_CLIMO_CHUNK)"/>
+      </component>
+
+<!-- FULL CHEMISTRY -->
+      <component type="tracer_level" start="$(ANA_CLIMO_START)" source="atmos_tracer" sourceGrid="atmos-cubedsphere" xyInterp="360,576" interpMethod="conserve_order1">
+        <timeSeries freq="monthly" chunkLength="$(PP_CLIMO_CHUNK)"/>
+        <timeSeries freq="annual" chunkLength="$(PP_CLIMO_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_climo.xml" xpointer="xpointer(*/tracerAnnualTS/*)"/>
+        </timeSeries>
+        <timeAverage source="monthly" interval="$(PP_CLIMO_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_CLIMO_LEN)">
+          <xi:include href="awg_include/analysis/analysis_climo.xml" xpointer="xpointer(*/tracerMonthAve/*)"/>
+        </timeAverage>
+      </component>
+
+<!-- LAND -->
+      <component type="land" start="$(ANA_CLIMO_START)" source="land_month" sourceGrid="land-cubedsphere" xyInterp="360,576" interpMethod="conserve_order1">
+        <timeSeries freq="daily" source="land_daily" chunkLength="$(PP_CLIMO_CHUNK)"/>
+        <timeSeries freq="monthly" chunkLength="$(PP_CLIMO_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_climo.xml" xpointer="xpointer(*/landMonthTS/*)"/>
+        </timeSeries>
+        <timeAverage source="monthly" interval="$(PP_CLIMO_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_CLIMO_LEN)">
+          <xi:include href="awg_include/analysis/analysis_climo.xml" xpointer="xpointer(*/landMonthAve/*)"/>
+        </timeAverage>
+      </component>
+
+      <component type="land_cubic" start="$(ANA_CLIMO_START)" source="land_month" sourceGrid="land-cubedsphere">
+        <timeSeries freq="monthly" chunkLength="$(PP_CLIMO_CHUNK)" >
+          <xi:include href="awg_include/analysis/analysis_climo.xml" xpointer="xpointer(*/landMonthTSNative/*)"/>
+        </timeSeries>
+        <timeSeries freq="daily" source="land_daily" chunkLength="$(PP_CLIMO_CHUNK)"/>
+      </component>
+
+      <component type="land_instant_cubic" start="$(ANA_CLIMO_START)" source="land_month_inst" sourceGrid="land-cubedsphere">
+        <timeSeries freq="monthly" chunkLength="$(PP_CLIMO_CHUNK)" />
+      </component>
+
+<!-- RIVER -->
+      <component type="river" start="$(ANA_CLIMO_START)" source="river_month" sourceGrid="land-cubedsphere" xyInterp="360,576" interpMethod="conserve_order1">
+        <timeSeries freq="daily" source="river_daily" chunkLength="$(PP_CLIMO_CHUNK)"/>
+        <timeSeries freq="monthly" chunkLength="$(PP_CLIMO_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(PP_CLIMO_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_CLIMO_LEN)"/>
+      </component>
+
+      <component type="river_cubic" start="$(ANA_CLIMO_START)" source="river_month" sourceGrid="land-cubedsphere">
+        <timeSeries freq="monthly" chunkLength="$(PP_CLIMO_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_climo.xml" xpointer="xpointer(*/riverMonthTSNative/*)"/>
+        </timeSeries>
+        <timeSeries freq="daily" source="river_daily" chunkLength="$(PP_CLIMO_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_climo.xml" xpointer="xpointer(*/riverDailyTSNative/*)"/>
+        </timeSeries>
+      </component>
+
+      <component type="river_instant_cubic" start="$(ANA_CLIMO_START)" source="river_month_inst" sourceGrid="land-cubedsphere">
+        <timeSeries freq="monthly" chunkLength="$(PP_CLIMO_CHUNK)" />
+      </component>
+
+    </postProcess>
+  </freInclude>
+
+
+
+
+
+<!--
+  postprocessing for CMIP6 diagnostic output
+-->
+  <freInclude name="c192_amip_postprocess_cmip6">
+    <postProcess>
+      <refineDiag script="$(AWG_INPUT_HOME_GFDL)/refineDiag/refineDiag_data_stager_globalAve.csh"/>
+      <refineDiag script="$(AWG_INPUT_HOME_GFDL)/refineDiag/refineDiag_atmos_cmip6.csh"/>
+
+      <component type="atmos_cmip" start="$(ANA_AMIP_START)" source="atmos_month_cmip" sourceGrid="atmos-cubedsphere" xyInterp="360,576" cmip="yes">
+        <timeSeries freq="3hr" source="atmos_8xdaily_cmip" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/atmos8xDailyTScmip/*)"/>
+        </timeSeries>
+        <timeSeries freq="3hr" source="atmos_8xdaily_inst" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeSeries freq="6hr" source="atmos_4xdaily_cmip" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeSeries freq="daily" source="atmos_daily_cmip" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/atmosDailyTScmip/*)"/>
+        </timeSeries>
+        <timeSeries freq="daily" source="atmos_daily_refined" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/atmosMonthTScmip/*)"/>
+        </timeSeries>
+        <timeSeries freq="monthly" source="atmos_month_refined" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_AMIP_LEN)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/atmosMonthAVcmip/*)"/>
+        </timeAverage>
+        <timeAverage source="annual" interval="$(PP_AMIP_CHUNK)" calcInterval="$(PP_AMIP_CHUNK)"/>
+      </component>
+
+      <component type="atmos" zInterp="era40" start="$(ANA_AMIP_START)" source="atmos_month" sourceGrid="atmos-cubedsphere" xyInterp="360,576">
+        <timeSeries freq="6hr" source="atmos_4xdaily" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/atmos4xDailyTS/*)"/>
+        </timeSeries>
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/atmosMonthTS/*)"/>
+        </timeSeries>
+        <timeAverage source="monthly" interval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_AMIP_LEN)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/atmosMonthAV/*)"/>
+        </timeAverage>
+        <timeAverage source="annual" interval="$(PP_AMIP_CHUNK)" calcInterval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="annual" interval="$(ANA_AMIP_LEN)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/atmosAnnualAV/*)"/>
+        </timeAverage>
+      </component>
+
+      <component type="atmos_level" start="$(ANA_AMIP_START)" source="atmos_month" sourceGrid="atmos-cubedsphere" xyInterp="360,576">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeSeries freq="annual" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/atmosLevelAnnualTS/*)"/>
+        </timeSeries>
+        <timeAverage source="monthly" interval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_AMIP_LEN)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/atmosLevelMonthAV/*)"/>
+        </timeAverage>
+      </component>
+
+      <component type="atmos_month_aer" start="$(ANA_AMIP_START)" source="atmos_month_aer" sourceGrid="atmos-cubedsphere" xyInterp="360,576" interpMethod="conserve_order1">
+        <timeAverage source="monthly" interval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_AMIP_LEN)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/atmosMonthAerAV/*)"/>
+        </timeAverage>
+      </component>
+
+      <component type="atmos_diurnal" start="$(ANA_AMIP_START)" source="atmos_diurnal" sourceGrid="atmos-cubedsphere" xyInterp="360,576">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_AMIP_LEN)"/>
+      </component>
+
+      <component type="atmos_scalar" start="$(ANA_AMIP_START)" source="atmos_scalar" cmip="yes">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+      </component>
+
+<!-- FULL CHEMISTRY -->
+      <component type="tracer_level" start="$(ANA_AMIP_START)" source="atmos_tracer" sourceGrid="atmos-cubedsphere" xyInterp="360,576" interpMethod="conserve_order1">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeSeries freq="annual" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/tracerAnnualTS/*)"/>
+        </timeSeries>
+        <timeAverage source="monthly" interval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_AMIP_LEN)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/tracerMonthAV/*)"/>
+        </timeAverage>
+      </component>
+
+      <component type="aerosol_cmip" start="$(ANA_AMIP_START)" source="aerosol_month_cmip" sourceGrid="atmos-cubedsphere" xyInterp="360,576" interpMethod="conserve_order1" cmip="yes">
+        <timeSeries freq="daily" source="aerosol_daily_cmip" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)" source="aerosol_month_refined"/>
+        <timeSeries freq="annual" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(PP_AMIP_CHUNK)"/>
+      </component>
+
+<!-- LAND -->
+      <component type="land" start="$(ANA_AMIP_START)" source="land_month" sourceGrid="land-cubedsphere" xyInterp="360,576" interpMethod="conserve_order1">
+        <timeSeries freq="daily" source="land_daily" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/landMonthTS/*)"/>
+        </timeSeries>
+        <timeAverage source="monthly" interval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_AMIP_LEN)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/landMonthAV/*)"/>
+        </timeAverage>
+      </component>
+
+      <component type="land_cubic" start="$(ANA_AMIP_START)" source="land_month" sourceGrid="land-cubedsphere"> 
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)" >
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/landMonthTSNative/*)"/>
+        </timeSeries>
+        <timeSeries freq="daily" source="land_daily" chunkLength="$(PP_AMIP_CHUNK)"/>
+      </component>
+
+      <component type="land_instant_cubic" start="$(ANA_AMIP_START)" source="land_month_inst" sourceGrid="land-cubedsphere"> 
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)" />
+      </component>
+
+      <component type="land_cmip" start="$(ANA_AMIP_START)" source="land_month_cmip" sourceGrid="land-cubedsphere" xyInterp="360,576" interpMethod="conserve_order1" cmip="yes">
+        <timeSeries freq="daily" source="land_daily_cmip" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(PP_AMIP_CHUNK)"/>
+      </component>
+
+<!-- RIVER -->
+      <component type="river" start="$(ANA_AMIP_START)" source="river_month" sourceGrid="land-cubedsphere" xyInterp="360,576" interpMethod="conserve_order1">
+        <timeSeries freq="daily" source="river_daily" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(PP_AMIP_CHUNK)"/>
+        <timeAverage source="monthly" interval="$(ANA_AMIP_LEN)"/>
+      </component>
+
+      <component type="river_cubic" start="$(ANA_AMIP_START)" source="river_month" sourceGrid="land-cubedsphere">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/riverMonthTSNative/*)"/>
+        </timeSeries>
+        <timeSeries freq="daily" source="river_daily" chunkLength="$(PP_AMIP_CHUNK)">
+          <xi:include href="awg_include/analysis/analysis_amip_cmip.xml" xpointer="xpointer(*/riverDailyTSNative/*)"/>
+        </timeSeries>
+      </component>
+
+      <component type="river_instant_cubic" start="$(ANA_AMIP_START)" source="river_month_inst" sourceGrid="land-cubedsphere">
+        <timeSeries freq="monthly" chunkLength="$(PP_AMIP_CHUNK)" />
+      </component>
+    </postProcess>
+  </freInclude>
+
+<!--====================-->
+<!--= AMIP EXPERIMENTS =-->
+<!--====================-->
+  <experiment name="c96L33_am4p0" inherit="cm4p12_FMS$(FMS_GIT_TAG)">
+<!-- MDBI -->
+    <publicMetadata DBswitch="$(MDBIswitch)">
+      <realization r="1" i="1" p="1"/>
+      <project>$(ProjectID)</project>
+      <model>am4p0</model>
+      <modelID>am4p0</modelID>
+      <experimentName>$(name)</experimentName>
+      <experimentID>$(name)</experimentID>
+      <comment>
+Experiment name = $(name)
+      </comment>
+      <forcing>N/A</forcing>
+      <startTime>$(EXP_AMIP_START)</startTime>
+      <endTime>$(EXP_AMIP_END)</endTime>
+      <parentExperimentID>N/A</parentExperimentID>
+      <parentExperimentRIP>N/A</parentExperimentRIP>
+      <branchTime>0.0</branchTime>
+    </publicMetadata>
+<!-- /MDBI -->
+<description>
+</description>
+    <input>
+      <namelist name="atmos_model_nml">
+         nxblocks = 1
+         nyblocks = $atm_threads
+      </namelist>
+      <!-- Namelist -->
+      <namelist file="$(AWG_INPUT_HOME)/nml/ocean_g12.nml"/>
+      <namelist file="$(AWG_INPUT_HOME)/nml/am4p0_common.nml"/>
+      <namelist file="$(AWG_INPUT_HOME)/nml/am4p0_physics.nml"/>
+      <namelist file="$(AWG_INPUT_HOME)/nml/am4p0_c96L33.nml"/>
+      <namelist file="$(AWG_INPUT_HOME)/nml/am4p0_amip.nml"/>
+      <namelist name="coupler_nml">
+        months = $months,
+        days   = $days,
+        current_date = 1979,1,1,0,0,0,
+        calendar = 'julian'
+        dt_atmos = 1800,
+        dt_cpld  = 7200,
+        use_lag_fluxes = .true.
+        concurrent = .false.
+        do_ocean = .false.
+        ocean_npes = $ocn_ranks
+        atmos_npes = $atm_ranks
+        atmos_nthreads = $atm_threads
+        use_hyper_thread = .false.
+      </namelist>
+
+      <!-- Input datasets -->
+      <xi:include xpointer="xpointer(//freInclude[@name='common_LM4']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='c96_LM4']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='common_AM4_v20170208']/input/node())"/>
+
+      <xi:include xpointer="xpointer(//freInclude[@name='common_cmip6']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='Volcano_Solar_TimeSeries_cmip6']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='emissions_cmip6_v20161213']/input/node())"/>
+
+      <xi:include xpointer="xpointer(//freInclude[@name='L32_gas_conc']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='amip_sst_cmip6']/input/node())"/>
+
+      <xi:include xpointer="xpointer(//freInclude[@name='data_table_AM4']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='data_table_co2']/input/node())"/>
+
+      <xi:include xpointer="xpointer(//freInclude[@name='c96_grid']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='c96_stack_size']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='csh_adjust_dry_mass']/input/node())"/>
+
+      <xi:include xpointer="xpointer(//freInclude[@name='c96L33_initCond']/input/node())"/>
+
+      <xi:include xpointer="xpointer(//freInclude[@name='diag_table_lm3p2_fullaero']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='field_table_am4p11']/input/node())"/>
+
+    </input>
+
+    <runtime>
+      <production simTime="$(EXP_AMIP_LEN)" units="years" >
+          <segment simTime="12" units="months" />
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_864_production']/node())"/>
+      </production>
+      <regression name="debug">
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_432_debug']/node())"/>
+      </regression>
+      <regression name="basic">
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_216_basic']/node())"/>
+      </regression>
+      <regression name="rts">
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_216_rts']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_384_rts']/node())"/>
+      </regression>
+      <regression name="debugrts">
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_216_debugrts']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_384_debugrts']/node())"/>
+      </regression>
+      <regression name="restart">
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_864_restart']/node())"/>
+      </regression>
+      <regression name="scaling">
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_1152_scaling']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_1728_scaling']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_2304_scaling']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_3456_scaling']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_4608_scaling']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_6912_scaling']/node())"/>
+      </regression>
+      <regression name="timing">
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_216_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_384_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_432_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_864_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_1152_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_1728_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_2304_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_3456_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_4608_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_6912_timing']/node())"/>
+      </regression>
+      <regression name="oriontiming">
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_240_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_360_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_480_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_720_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_864_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_960_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_1440_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_1728_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_1920_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_2880_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_5760_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_6912_timing']/node())"/>
+      </regression>
+
+
+    </runtime>
+
+    <postProcess>
+      <xi:include xpointer="xpointer(//freInclude[@name='c96_amip_postprocess']/postProcess/node())"/>
+    </postProcess>
+  </experiment>
+
+
+  <experiment name="c96L33_am4p0_qadt_2010" inherit="cm4p12_FMS$(FMS_GIT_TAG)">
+<!-- MDBI -->
+    <publicMetadata DBswitch="$(MDBIswitch)">
+      <realization r="1" i="1" p="1"/>
+      <project>$(ProjectID)</project>
+      <model>am4p0</model>
+      <modelID>am4p0</modelID>
+      <experimentName>$(name)</experimentName>
+      <experimentID>$(name)</experimentID>
+      <comment>
+Experiment name = $(name)
+      </comment>
+      <forcing>N/A</forcing>
+      <startTime>$(EXP_AMIP_START)</startTime>
+      <endTime>$(EXP_AMIP_END)</endTime>
+      <parentExperimentID>N/A</parentExperimentID>
+      <parentExperimentRIP>N/A</parentExperimentRIP>
+      <branchTime>0.0</branchTime>
+    </publicMetadata>
+<!-- /MDBI -->
+<description>
+</description>
+    <input>
+      <namelist name="atmos_model_nml">
+         nxblocks = 1
+         nyblocks = $atm_threads
+      </namelist>
+      <!-- Namelist -->
+      <namelist file="$(AWG_INPUT_HOME)/nml/ocean_g12.nml"/>
+      <namelist file="$(AWG_INPUT_HOME)/nml/am4p0_common.nml"/>
+      <namelist file="$(AWG_INPUT_HOME)/nml/am4p0_physics.nml"/>
+      <namelist file="$(AWG_INPUT_HOME)/nml/am4p0_c96L33.nml"/>
+      <namelist file="$(AWG_INPUT_HOME)/nml/am4p0_amip.nml"/>
+      <namelist name="coupler_nml">
+        months = $months,
+        days   = $days,
+        current_date = 2009,1,1,0,0,0,
+        calendar = 'julian'
+        dt_atmos = 1800,
+        dt_cpld  = 7200,
+        use_lag_fluxes = .true.
+        concurrent = .false.
+        do_ocean = .false.
+        ocean_npes = $ocn_ranks
+        atmos_npes = $atm_ranks
+        atmos_nthreads = $atm_threads
+        use_hyper_thread = .false.
+      </namelist>
+
+      <!-- Input datasets -->
+      <xi:include xpointer="xpointer(//freInclude[@name='common_LM4']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='c96_LM4']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='common_AM4_v20170208']/input/node())"/>
+
+      <xi:include xpointer="xpointer(//freInclude[@name='common_cmip6']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='Volcano_Solar_TimeSeries_cmip6']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='emissions_cmip6_v20161213']/input/node())"/>
+
+      <xi:include xpointer="xpointer(//freInclude[@name='L32_gas_conc']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='amip_sst_cmip6']/input/node())"/>
+
+      <xi:include xpointer="xpointer(//freInclude[@name='data_table_AM4']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='data_table_co2']/input/node())"/>
+
+      <xi:include xpointer="xpointer(//freInclude[@name='c96_grid']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='c96_stack_size']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='csh_adjust_dry_mass']/input/node())"/>
+
+      <xi:include xpointer="xpointer(//freInclude[@name='c96L33_initCond']/input/node())"/>
+
+      <xi:include xpointer="xpointer(//freInclude[@name='diag_table_lm3p2_qadt']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='field_table_am4p11']/input/node())"/>
+
+    </input>
+
+    <runtime>
+      <production simTime="$(EXP_AMIP_LEN)" units="years" >
+          <segment simTime="12" units="months" />
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_864_production']/node())"/>
+      </production>
+      <regression name="debug">
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_432_debug']/node())"/>
+      </regression>
+      <regression name="basic">
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_216_basic']/node())"/>
+      </regression>
+      <regression name="rts">
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_216_rts']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_384_rts']/node())"/>
+      </regression>
+      <regression name="debugrts">
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_216_debugrts']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_384_debugrts']/node())"/>
+      </regression>
+      <regression name="restart">
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_864_restart']/node())"/>
+      </regression>
+      <regression name="scaling">
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_1152_scaling']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_1728_scaling']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_2304_scaling']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_3456_scaling']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_4608_scaling']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_6912_scaling']/node())"/>
+      </regression>
+      <regression name="timing">
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_216_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_384_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_432_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_864_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_1152_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_1728_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_2304_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_3456_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_4608_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_6912_timing']/node())"/>
+      </regression>
+      <regression name="oriontiming">
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_240_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_360_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_480_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_720_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_864_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_960_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_1440_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_1728_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_1920_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_2880_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_5760_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_6912_timing']/node())"/>
+      </regression>
+
+
+    </runtime>
+
+    <postProcess>
+      <xi:include xpointer="xpointer(//freInclude[@name='c96_amip_postprocess_qadt']/postProcess/node())"/>
+    </postProcess>
+  </experiment>
+
+ <experiment name="c96L33_am4p0_qadt_cosp_2010" inherit="cm4p12_FMS$(FMS_GIT_TAG)">
+    <input>
+      <namelist name="physics_driver_nml">
+         donner_meso_is_largescale = .false.
+         do_cosp = .true.
+         n_land = 300.e6,
+         n_ocean = 100.e6,
+      </namelist>
+      <namelist name="moist_processes_nml">
+        include_donmca_in_cosp = .false.
+        do_uw_conv = .true.
+        do_height_adjust = .true.
+      </namelist>
+      <namelist name="radiation_driver_nml">
+        rad_time_step = 10800,
+        rad_package = 'sea_esf',
+        do_clear_sky_pass = .true.,
+        renormalize_sw_fluxes = .true.,
+        zenith_spec = 'diurnally_varying',
+        using_restart_file = .false.
+        do_conserve_energy = .true.
+        sw_rad_time_step = 3600,
+        use_single_lw_sw_ts = .false.,
+      </namelist>
+      <!-- Namelist -->
+      <namelist file="$(AWG_INPUT_HOME)/nml/ocean_g12.nml"/>
+      <namelist file="$(AWG_INPUT_HOME)/nml/am4p0_common.nml"/>
+      <namelist file="$(AWG_INPUT_HOME)/nml/cmip6_am4p0_physics.nml"/>
+      <namelist file="$(AWG_INPUT_HOME)/nml/am4p0_c96L33.nml"/>
+      <namelist file="$(AWG_INPUT_HOME)/nml/am4p0_amip.nml"/>
+      <namelist name="coupler_nml">
+        months = $months,
+        days   = $days,
+        current_date = 2009,1,1,0,0,0,
+        calendar = 'julian'
+        dt_atmos = 1800,
+        dt_cpld  = 7200,
+        use_lag_fluxes = .true.
+        concurrent = .false.
+        do_ocean = .false.
+        ocean_npes = $ocn_ranks
+        atmos_npes = $atm_ranks
+        atmos_nthreads = $atm_threads
+        use_hyper_thread = .false.
+      </namelist>
+
+      <namelist name="mpp_io_nml">
+        cf_compliance = .true.
+      </namelist>
+
+      <namelist name="aerosolrad_driver_nml">
+        do_swaerosol_forcing = .true.
+        do_lwaerosol_forcing = .true.
+      </namelist>
+
+      <!-- Input datasets -->
+      <xi:include xpointer="xpointer(//freInclude[@name='cosp_lists']/input/node())"/>
+
+      <xi:include xpointer="xpointer(//freInclude[@name='common_LM4']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='c96_LM4']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='common_AM4_v20170208']/input/node())"/>
+
+      <xi:include xpointer="xpointer(//freInclude[@name='common_cmip6']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='Volcano_Solar_TimeSeries_cmip6']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='emissions_cmip6_v20161213']/input/node())"/>
+
+      <xi:include xpointer="xpointer(//freInclude[@name='L32_gas_conc']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='amip_sst_cmip6']/input/node())"/>
+
+      <xi:include xpointer="xpointer(//freInclude[@name='data_table_AM4']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='data_table_co2']/input/node())"/>
+
+      <xi:include xpointer="xpointer(//freInclude[@name='c96_grid']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='c96_stack_size']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='csh_adjust_dry_mass']/input/node())"/>
+
+      <xi:include xpointer="xpointer(//freInclude[@name='c96L33_initCond']/input/node())"/>
+
+      <xi:include xpointer="xpointer(//freInclude[@name='diag_table_lm3p2_qadt']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='field_table_am4p11_cmip6']/input/node())"/>
+    </input>
+
+    <runtime>
+      <production simTime="$(EXP_AMIP_LEN)" units="years" >
+          <segment simTime="12" units="months" />
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_864_production']/node())"/>
+      </production>
+      <regression name="debug">
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_432_debug']/node())"/>
+      </regression>
+      <regression name="basic">
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_216_basic']/node())"/>
+      </regression>
+      <regression name="rts">
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_216_rts']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_384_rts']/node())"/>
+      </regression>
+      <regression name="debugrts">
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_216_debugrts']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_384_debugrts']/node())"/>
+      </regression>
+      <regression name="restart">
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_864_restart']/node())"/>
+      </regression>
+      <regression name="scaling">
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_1152_scaling']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_1728_scaling']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_2304_scaling']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_3456_scaling']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_4608_scaling']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_6912_scaling']/node())"/>
+      </regression>
+      <regression name="timing">
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_216_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_384_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_432_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_864_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_1152_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_1728_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_2304_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_3456_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_4608_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_6912_timing']/node())"/>
+      </regression>
+      <regression name="oriontiming">
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_240_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_360_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_480_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_720_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_864_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_960_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_1440_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_1728_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_1920_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_2880_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_5760_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_6912_timing']/node())"/>
+      </regression>
+      <regression name="year">
+       <run months="12">
+                <resources jobWallclock="4:00:00">
+                <atm ranks="432" threads="1"    layout = "3,24"    io_layout = "1,4" />
+                <lnd                            layout = "3,24"    io_layout = "1,4" />
+                <ocn ranks="0"   threads="0"    layout = "144,3"   io_layout = "1,3" />
+                <ice                            layout = "144,3"   io_layout = "1,3" />
+                </resources>
+        </run>
+       <run months="12">
+                <resources jobWallclock="2:30:00">
+                <atm ranks="432" threads="2"    layout = "3,24"    io_layout = "1,4" />
+                <lnd                            layout = "3,24"    io_layout = "1,4" />
+                <ocn ranks="0"   threads="0"    layout = "144,3"   io_layout = "1,3" />
+                <ice                            layout = "144,3"   io_layout = "1,3" />
+                </resources>
+        </run>
+      </regression>
+
+    </runtime>
+
+    <postProcess>
+      <xi:include xpointer="xpointer(//freInclude[@name='c96_amip_postprocess_cosp_qadt']/postProcess/node())"/>
+    </postProcess>
+  </experiment>
+
+
+ <experiment name="c96L33_am4p0_cosp" inherit="cm4p12_FMS$(FMS_GIT_TAG)">
+    <input>
+      <namelist name="physics_driver_nml">
+         donner_meso_is_largescale = .false.
+         do_cosp = .true.
+         n_land = 300.e6,
+         n_ocean = 100.e6,
+      </namelist>
+      <namelist name="moist_processes_nml">
+        include_donmca_in_cosp = .false.
+        do_uw_conv = .true.
+        do_height_adjust = .true.
+      </namelist>
+      <namelist name="radiation_driver_nml">
+        rad_time_step = 10800,
+        rad_package = 'sea_esf',
+        do_clear_sky_pass = .true.,
+        renormalize_sw_fluxes = .true.,
+        zenith_spec = 'diurnally_varying',
+        using_restart_file = .false.
+        do_conserve_energy = .true.
+        sw_rad_time_step = 3600,
+        use_single_lw_sw_ts = .false.,
+      </namelist>
+      <!-- Namelist -->
+      <namelist file="$(AWG_INPUT_HOME)/nml/ocean_g12.nml"/>
+      <namelist file="$(AWG_INPUT_HOME)/nml/am4p0_common.nml"/>
+      <namelist file="$(AWG_INPUT_HOME)/nml/cmip6_am4p0_physics.nml"/>
+      <namelist file="$(AWG_INPUT_HOME)/nml/am4p0_c96L33.nml"/>
+      <namelist file="$(AWG_INPUT_HOME)/nml/am4p0_amip.nml"/>
+      <namelist name="coupler_nml">
+        months = $months,
+        days   = $days,
+        current_date = 2004,1,1,0,0,0,
+        calendar = 'julian'
+        dt_atmos = 1800,
+        dt_cpld  = 7200,
+        use_lag_fluxes = .true.
+        concurrent = .false.
+        do_ocean = .false.
+        ocean_npes = $ocn_ranks
+        atmos_npes = $atm_ranks
+        atmos_nthreads = $atm_threads
+        use_hyper_thread = .false.
+      </namelist>
+
+      <namelist name="mpp_io_nml">
+        cf_compliance = .true.
+      </namelist>
+
+      <namelist name="aerosolrad_driver_nml">
+        do_swaerosol_forcing = .true.
+        do_lwaerosol_forcing = .true.
+      </namelist>
+
+      <!-- Input datasets -->
+      <xi:include xpointer="xpointer(//freInclude[@name='cosp_lists']/input/node())"/>
+
+      <xi:include xpointer="xpointer(//freInclude[@name='common_LM4']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='c96_LM4']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='common_AM4_v20170208']/input/node())"/>
+
+      <xi:include xpointer="xpointer(//freInclude[@name='common_cmip6']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='Volcano_Solar_TimeSeries_cmip6']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='emissions_cmip6_v20161213']/input/node())"/>
+
+      <xi:include xpointer="xpointer(//freInclude[@name='L32_gas_conc']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='amip_sst_cmip6']/input/node())"/>
+
+      <xi:include xpointer="xpointer(//freInclude[@name='data_table_AM4']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='data_table_co2']/input/node())"/>
+
+      <xi:include xpointer="xpointer(//freInclude[@name='c96_grid']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='c96_stack_size']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='csh_adjust_dry_mass']/input/node())"/>
+
+      <xi:include xpointer="xpointer(//freInclude[@name='c96L33_initCond']/input/node())"/>
+
+      <xi:include xpointer="xpointer(//freInclude[@name='diag_table_lm3p2_calipso']/input/node())"/>
+      <xi:include xpointer="xpointer(//freInclude[@name='field_table_am4p11_cmip6']/input/node())"/>
+    </input>
+
+    <runtime>
+      <production simTime="11" units="years" >
+          <segment simTime="12" units="months" />
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_864_production']/node())"/>
+      </production>
+      <regression name="debug">
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_432_debug']/node())"/>
+      </regression>
+      <regression name="basic">
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_216_basic']/node())"/>
+      </regression>
+      <regression name="rts">
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_216_rts']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_384_rts']/node())"/>
+      </regression>
+      <regression name="debugrts">
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_216_debugrts']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_384_debugrts']/node())"/>
+      </regression>
+      <regression name="restart">
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_864_restart']/node())"/>
+      </regression>
+      <regression name="scaling">
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_1152_scaling']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_1728_scaling']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_2304_scaling']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_3456_scaling']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_4608_scaling']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_6912_scaling']/node())"/>
+      </regression>
+      <regression name="timing">
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_216_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_384_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_432_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_864_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_1152_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_1728_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_2304_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_3456_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_4608_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_6912_timing']/node())"/>
+      </regression>
+      <regression name="oriontiming">
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_240_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_360_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_480_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_720_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_864_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_960_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_1440_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_1728_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_1920_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_2880_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_5760_timing']/node())"/>
+          <xi:include xpointer="xpointer(//freInclude[@name='c96_6912_timing']/node())"/>
+      </regression>
+      <regression name="year">
+       <run months="12">
+                <resources jobWallclock="4:00:00">
+                <atm ranks="432" threads="1"    layout = "3,24"    io_layout = "1,4" />
+                <lnd                            layout = "3,24"    io_layout = "1,4" />
+                <ocn ranks="0"   threads="0"    layout = "144,3"   io_layout = "1,3" />
+                <ice                            layout = "144,3"   io_layout = "1,3" />
+                </resources>
+        </run>
+       <run months="12">
+                <resources jobWallclock="2:30:00">
+                <atm ranks="432" threads="2"    layout = "3,24"    io_layout = "1,4" />
+                <lnd                            layout = "3,24"    io_layout = "1,4" />
+                <ocn ranks="0"   threads="0"    layout = "144,3"   io_layout = "1,3" />
+                <ice                            layout = "144,3"   io_layout = "1,3" />
+                </resources>
+        </run>
+      </regression>
+
+    </runtime>
+
+    <postProcess>
+      <xi:include xpointer="xpointer(//freInclude[@name='c96_amip_postprocess_cosp']/postProcess/node())"/>
+    </postProcess>
+  </experiment>
+
+
+
+<!-- This test experiment is a TEST and should be used for testing purposes only. It will run a 2021.01 build of AM4
+ public release in a container.  The model was built with the intel 2021.2.0 compilers (icc and ifort) -->
+  <experiment name="c96L33_am4p0_container" inherit="c96L33_am4p0">
+    <!-- set the executable as the singularity container image -->
+    <executable file="/lustre/f2/dev/Thomas.Robinson/containers/AM4/xanadu_2021.01/am4_ubuntu_intel_full_2021.01.sif"/>
+    <input>
+      <csh><![CDATA[
+## Run command to run singularity
+alias runCommand time `which srun` --mpi=pmi2 --verbose --export=ALL --ntasks=$tot_atm_ranks --cpus-per-task=$scheduler_atm_threads `which singularity` run -B ${workDir} ./$executable:t
+## Set the domain stacksize because this freInclude gets overwritten by this csh section
+set domains_stack_size = "2097152"
+      ]]></csh>
+    </input>
+  </experiment>
+
+</experimentSuite>

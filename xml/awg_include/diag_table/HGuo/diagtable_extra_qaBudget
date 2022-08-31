@@ -1,0 +1,41 @@
+# ##########################################
+# Extra variables for budget analysis
+# ##########################################
+
+# for cloud fraction budget
+"strat",  "qadt_lsform"            "qadt_lsform"            "atmos_month",     "all", .true.,  "none", 2
+"strat",  "qadt_lsdiss"            "qadt_lsdiss"            "atmos_month",     "all", .true.,  "none", 2
+"strat",  "qadt_rhred"             "qadt_rhred"             "atmos_month",     "all", .true.,  "none", 2
+"strat",  "qadt_eros"              "qadt_eros"              "atmos_month",     "all", .true.,  "none", 2
+"strat",  "qadt_fill"              "qadt_fill"              "atmos_month",     "all", .true.,  "none", 2
+"strat",  "qadt_super"             "qadt_super"             "atmos_month",     "all", .true.,  "none", 2
+"strat",  "qadt_destr"             "qadt_destr"             "atmos_month",     "all", .true.,  "none", 2
+"strat",  "qadt_limits"            "qadt_limits"            "atmos_month",     "all", .true.,  "none", 2
+"strat",  "qadt_ahuco"             "qadt_ahuco"             "atmos_month",     "all", .true.,  "none", 2
+
+"strat",  "SA3d"                   "SA3d"                   "atmos_month",     "all", .true.,  "none", 2
+"strat",  "SA2d"                   "SA2d"                   "atmos_month",     "all", .true.,  "none", 2
+
+"strat",  "SA_imb"                 "SA_imb"                 "atmos_month",     "all", .true.,  "none", 2
+"strat",  "SA_imb_col"             "SA_imb_col"             "atmos_month",     "all", .true.,  "none", 2
+
+"strat",  "qa_lsform_col"          "qa_lsform_col"          "atmos_month",     "all", .true.,  "none", 2
+"strat",  "qa_lsdiss_col"          "qa_lsdiss_col"          "atmos_month",     "all", .true.,  "none", 2
+"strat",  "qa_rhred_col"           "qa_rhred_col"           "atmos_month",     "all", .true.,  "none", 2
+"strat",  "qa_eros_col"            "qa_eros_col"            "atmos_month",     "all", .true.,  "none", 2
+"strat",  "qa_fill_col"            "qa_fill_col"            "atmos_month",     "all", .true.,  "none", 2
+"strat",  "qa_super_col"           "qa_super_col"           "atmos_month",     "all", .true.,  "none", 2
+"strat",  "qa_destr_col"           "qa_destr_col"           "atmos_month",     "all", .true.,  "none", 2
+"strat",  "qa_limits_col"          "qa_limits_col"          "atmos_month",     "all", .true.,  "none", 2
+"strat",  "qa_ahuco_col"           "qa_ahuco_col"           "atmos_month",     "all", .true.,  "none", 2
+
+"atmos",     "cld_amtdt_dyn",         "qadt_dyn",           "atmos_month",     "all", .true.,  "none", 2
+"atmos",     "cld_amtdt_fv_phys",     "qadt_fv_phys",       "atmos_month",     "all", .true.,  "none", 2
+"phys",      "cld_amt_phys",          "qadt_phys",          "atmos_month",     "all", .true.,  "none", 2
+"moist",     "qadt_conv",             "qadt_conv",          "atmos_month",     "all", .true.,  "none", 2
+"moist",     "qadt_ls",               "qadt_ls",            "atmos_month",     "all", .true.,  "none", 2
+"vert_diff", "cld_amtdt_vdif",        "qadt_vdif",          "atmos_month",     "all", .true.,  "none", 2
+
+"moist",     "qa_conv_col",           "qa_conv_col",        "atmos_month",     "all", .true.,  "none", 2
+"moist",     "qa_ls_col",             "qa_ls_col",          "atmos_month",     "all", .true.,  "none", 2
+

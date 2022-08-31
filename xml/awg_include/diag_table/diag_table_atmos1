@@ -1,0 +1,28 @@
+# Simplified diag_table for running AWG AMIP experiments
+
+"grid_spec",            -1, "months",  1, "days", "time",
+"atmos_month",           1, "months",  1, "days", "time",
+
+# #########
+# grid_spec
+# #########
+
+"dynamics", "grid_lon",  "grid_lon",  "grid_spec", "all", .false.,  "none", 2
+"dynamics", "grid_lat",  "grid_lat",  "grid_spec", "all", .false.,  "none", 2
+"dynamics", "grid_lont", "grid_lont", "grid_spec", "all", .false.,  "none", 2
+"dynamics", "grid_latt", "grid_latt", "grid_spec", "all", .false.,  "none", 2
+"dynamics", "area",      "area",      "grid_spec", "all", .false.,  "none", 2
+"dynamics", "bk",        "bk",        "grid_spec", "all", .false.,  "none", 2
+"dynamics", "pk",        "pk",        "grid_spec", "all", .false.,  "none", 2
+"flux",     "land_mask", "land_mask", "grid_spec", "all", .false.,  "none", 2
+"dynamics", "zsurf",     "zsurf",     "grid_spec", "all", .false.,  "none", 2
+
+# ###########
+# atmos_month
+# ###########
+
+"dynamics",  "bk",                             "bk",               "atmos_month",     "all", .false., "none", 2
+"dynamics",  "pk",                             "pk",               "atmos_month",     "all", .false., "none", 2
+"flux",      "land_mask",                      "land_mask",        "atmos_month",     "all", .false., "none", 2
+"dynamics",  "zsurf",                          "zsurf",            "atmos_month",     "all", .false., "none", 2
+

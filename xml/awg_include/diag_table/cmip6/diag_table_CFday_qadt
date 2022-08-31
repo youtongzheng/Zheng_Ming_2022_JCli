@@ -1,0 +1,60 @@
+###################
+# Table: CFday
+# Version: 1.00.15
+###################
+
+"grid_spec",            -1, "months",  1, "days", "time",
+"atmos_level_daily_cmip",        24, "hours",    1,  "days",  "time",
+"atmos_daily_cmip",        24, "hours",    1,  "days",  "time",
+
+##. Auxiliary fields required for model level output
+"dynamics", "grid_lon",  "grid_lon",  "grid_spec", "all", .false.,  "none", 2
+"dynamics", "grid_lat",  "grid_lat",  "grid_spec", "all", .false.,  "none", 2
+"dynamics", "grid_lont", "grid_lont", "grid_spec", "all", .false.,  "none", 2
+"dynamics", "grid_latt", "grid_latt", "grid_spec", "all", .false.,  "none", 2
+"dynamics", "area",      "area",      "grid_spec", "all", .false.,  "none", 2
+"dynamics", "bk",        "bk",        "grid_spec", "all", .false.,  "none", 2
+"dynamics", "pk",        "pk",        "grid_spec", "all", .false.,  "none", 2
+
+ "cmip",          "lev_bnds",      "lev_bnds",      "atmos_level_daily_cmip",        "all",  .false., "none", 1
+ "cmip",          "ap",            "ap",            "atmos_level_daily_cmip",        "all",  .false., "none", 1
+ "cmip",          "b",             "b",             "atmos_level_daily_cmip",        "all",  .false., "none", 1
+ "cmip",          "ap_bnds",       "ap_bnds",       "atmos_level_daily_cmip",        "all",  .false., "none", 1
+ "cmip",          "b_bnds",        "b_bnds",        "atmos_level_daily_cmip",        "all",  .false., "none", 1
+ "cmip",          "ap_half",       "ap_half",       "atmos_level_daily_cmip",        "all",  .false., "none", 1
+ "cmip",          "b_half",        "b_half",        "atmos_level_daily_cmip",        "all",  .false., "none", 1 
+
+###################
+
+##. Surface Air Pressure, Pa (longitude,latitude,time)
+ "atmos",         "ps",            "ps",            "atmos_daily_cmip",        "all",  .true.,  "none", 2
+
+##. CALIPSO Total Cloud Cover Percentage, % (longitude,latitude,time)
+ "cosp",          "cltcalipso",    "cltcalipso",    "atmos_daily_cmip",        "all",  .true.,  "none", 2
+
+##. CALIPSO Low Level Cloud Cover Percentage, % (longitude,latitude,time,p840)
+ "cosp",          "cllcalipso",    "cllcalipso",    "atmos_daily_cmip",        "all",  .true.,  "none", 2
+
+##. CALIPSO Mid Level Cloud Percentage, % (longitude,latitude,time,p560)
+ "cosp",          "clmcalipso",    "clmcalipso",    "atmos_daily_cmip",        "all",  .true.,  "none", 2
+
+##. CALIPSO High Level Cloud Area Percentage, % (longitude,latitude,time,p220)
+ "cosp",          "clhcalipso",    "clhcalipso",    "atmos_daily_cmip",        "all",  .true.,  "none", 2
+
+##. CALIPSO Percentage Cloud Cover, % (longitude,latitude,alt40,time)
+ "cosp",       "clcalipso",     "clcalipso",     "atmos_level_daily_cmip",        "all",  .true.,  "none", 2
+
+
+
+"cosp",          "lremodis",    "lremodis",    "atmos_daily_cmip",        "all",  .true.,  "none", 2
+"cosp",          "ltaumodis",    "ltaumodis",    "atmos_daily_cmip",        "all",  .true.,  "none", 2
+
+
+##. ISCCP Cloud Area Fraction, % (longitude,latitude,plev7c,tau,time)
+# "UNKNOWN",       "clisccp",       "clisccp",       "atmos_daily_cmip",        "all",  .true.,  "none", 2
+
+##. Pressure on Model Levels, Pa (longitude,latitude,alevel,time)
+# "phys",          "pfull",         "pfull",         "atmos_daily_cmip",        "all",  .true.,  "none", 2
+
+##. Pressure on Model Half-Levels, Pa (longitude,latitude,alevhalf,time)
+# "phys",          "phalf",         "phalf",         "atmos_daily_cmip",        "all",  .true.,  "none", 2

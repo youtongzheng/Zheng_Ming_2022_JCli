@@ -1,0 +1,27 @@
+# ##########################################
+# Extra variables for budget analysis
+# ##########################################
+
+# for cloud fraction budget
+"strat",  "qadt_lsform"            "qadt_lsform"            "atmos_month",     "all", .true.,  "none", 2
+"strat",  "qadt_lsdiss"            "qadt_lsdiss"            "atmos_month",     "all", .true.,  "none", 2
+"strat",  "qadt_rhred"             "qadt_rhred"             "atmos_month",     "all", .true.,  "none", 2
+"strat",  "qadt_eros"              "qadt_eros"              "atmos_month",     "all", .true.,  "none", 2
+"strat",  "qadt_fill"              "qadt_fill"              "atmos_month",     "all", .true.,  "none", 2
+"strat",  "qadt_super"             "qadt_super"             "atmos_month",     "all", .true.,  "none", 2
+"strat",  "qadt_destr"             "qadt_destr"             "atmos_month",     "all", .true.,  "none", 2
+"strat",  "qadt_limits"            "qadt_limits"            "atmos_month",     "all", .true.,  "none", 2
+"strat",  "qadt_ahuco"             "qadt_ahuco"             "atmos_month",     "all", .true.,  "none", 2
+
+"strat",  "SA3d"                   "SA3d"                   "atmos_month",     "all", .true.,  "none", 2
+
+"atmos",     "cld_amtdt_dyn",         "qadt_dyn",           "atmos_month",     "all", .true.,  "none", 2
+"atmos",     "cld_amtdt_fv_phys",     "qadt_fv_phys",       "atmos_month",     "all", .true.,  "none", 2
+"phys",      "cld_amt_phys",          "qadt_phys",          "atmos_month",     "all", .true.,  "none", 2
+"moist",     "qadt_conv",             "qadt_conv",          "atmos_month",     "all", .true.,  "none", 2
+"moist",     "qadt_ls",               "qadt_ls",            "atmos_month",     "all", .true.,  "none", 2
+"vert_diff", "cld_amtdt_vdif",        "qadt_vdif",          "atmos_month",     "all", .true.,  "none", 2
+
+
+
+

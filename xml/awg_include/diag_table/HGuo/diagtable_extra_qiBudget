@@ -1,0 +1,70 @@
+# ##########################################
+# Extra variables for budget analysis
+# ##########################################
+
+# for cloud ice water budget
+#"strat",     "qldt_berg",                     "qldt_berg",           "atmos_month",     "all", .true., "none", 2
+#"strat",     "qldt_freez",                    "qldt_freez",          "atmos_month",     "all", .true., "none", 2
+#"strat",     "qldt_rime",                     "qldt_rime",           "atmos_month",     "all", .true., "none", 2
+#"strat",     "qldt_freez2",                   "qldt_freez2",         "atmos_month",     "all", .true., "none", 2
+#"strat",     "qldt_HM_splinter",              "qldt_HM_splinter",    "atmos_month",     "all", .true., "none", 2
+#"strat",     "qidt_melt2",                    "qidt_melt2",          "atmos_month",     "all", .true., "none", 2
+
+"strat",     "qidt_dep",                      "qidt_dep",            "atmos_month",     "all", .true., "none", 2
+"strat",     "qidt_subl",                     "qidt_subl",           "atmos_month",     "all", .true., "none", 2
+"strat",     "qidt_fall",                     "qidt_fall",           "atmos_month",     "all", .true., "none", 2
+"strat",     "qidt_eros",                     "qidt_eros",           "atmos_month",     "all", .true., "none", 2
+"strat",     "qidt_melt",                     "qidt_melt",           "atmos_month",     "all", .true., "none", 2
+
+"strat",     "qidt_fill",                     "qidt_fill",           "atmos_month",     "all", .true., "none", 2
+"strat",     "qidt_destr",                    "qidt_destr",          "atmos_month",     "all", .true., "none", 2
+"strat",     "qidt_qvdep",                    "qidt_qvdep",          "atmos_month",     "all", .true., "none", 2
+"strat",     "qidt_auto",                     "qidt_auto",           "atmos_month",     "all", .true., "none", 2
+"strat",     "qidt_accr",                     "qidt_accr",           "atmos_month",     "all", .true., "none", 2
+"strat",     "qidt_rain2ice",                 "qidt_rain2ice",       "atmos_month",     "all", .true., "none", 2
+"strat",     "qidt_tiny",                     "qidt_tiny",           "atmos_month",     "all", .true., "none", 2
+
+#"strat",     "qidt_accrs",                    "qidt_accrs",          "atmos_month",     "all", .true., "none", 2
+"strat",     "ice_adj",                       "ice_adj",             "atmos_month",     "all", .true., "none", 2
+"strat",     "qdt_cleanup_ice",               "qdt_cleanup_ice",     "atmos_month",     "all", .true., "none", 2
+
+"strat",     "SI3d"                           "SI3d"                   "atmos_month",     "all", .true.,  "none", 2
+"strat",     "SI2d"                           "SI2d"                   "atmos_month",     "all", .true.,  "none", 2
+
+"strat",     "SI_imb"                         "SI_imb"                   "atmos_month",     "all", .true.,  "none", 2
+"strat",     "SI_imb_col"                     "SI_imb_col"               "atmos_month",     "all", .true.,  "none", 2
+
+#"strat",     "ql_berg_col",                     "ql_berg_col",           "atmos_month",     "all", .true., "none", 2
+#"strat",     "ql_freez_col",                    "ql_freez_col",          "atmos_month",     "all", .true., "none", 2
+#"strat",     "ql_rime_col",                     "ql_rime_col",           "atmos_month",     "all", .true., "none", 2
+#"strat",     "ql_freez2_col",                   "ql_freez2_col",         "atmos_month",     "all", .true., "none", 2
+#"strat",     "ql_HM_splinter_col",              "ql_HM_splinter_col",    "atmos_month",     "all", .true., "none", 2
+#"strat",     "qi_melt2_col",                    "qi_melt2_col",          "atmos_month",     "all", .true., "none", 2
+"strat",     "qi_dep_col",                      "qi_dep_col",            "atmos_month",     "all", .true., "none", 2
+"strat",     "qi_subl_col",                     "qi_subl_col",           "atmos_month",     "all", .true., "none", 2
+"strat",     "qi_fall_col",                     "qi_fall_col",           "atmos_month",     "all", .true., "none", 2
+"strat",     "qi_eros_col",                     "qi_eros_col",           "atmos_month",     "all", .true., "none", 2
+"strat",     "qi_melt_col",                     "qi_melt_col",           "atmos_month",     "all", .true., "none", 2
+
+"strat",     "qi_fill_col",                     "qi_fill_col",           "atmos_month",     "all", .true., "none", 2
+"strat",     "qi_destr_col",                    "qi_destr_col",          "atmos_month",     "all", .true., "none", 2
+"strat",     "qi_qvdep_col",                    "qi_qvdep_col",          "atmos_month",     "all", .true., "none", 2
+"strat",     "qi_auto_col",                     "qi_auto_col",           "atmos_month",     "all", .true., "none", 2
+"strat",     "qi_accr_col",                     "qi_accr_col",           "atmos_month",     "all", .true., "none", 2
+"strat",     "qi_rain2ice_col",                 "qi_rain2ice_col",       "atmos_month",     "all", .true., "none", 2
+"strat",     "qi_tiny_col",                     "qi_tiny_col",           "atmos_month",     "all", .true., "none", 2
+
+#"strat",     "qi_accrs_col",                    "qi_accrs_col",          "atmos_month",     "all", .true., "none", 2
+"strat",     "ice_adj_col",                     "ice_adj_col",           "atmos_month",     "all", .true., "none", 2
+"strat",     "q_cleanup_ice_col",               "q_cleanup_ice_col",     "atmos_month",     "all", .true., "none", 2
+
+
+"atmos",     "ice_watdt_dyn",         "qidt_dyn",           "atmos_month",     "all", .true.,  "none", 2
+"atmos",     "ice_watdt_fv_phys",     "qidt_fv_phys",       "atmos_month",     "all", .true.,  "none", 2
+"phys",      "ice_wat_phys",          "qidt_phys",          "atmos_month",     "all", .true.,  "none", 2
+"moist",     "qidt_conv",             "qidt_conv",          "atmos_month",     "all", .true.,  "none", 2
+"moist",     "qidt_ls",               "qidt_ls",            "atmos_month",     "all", .true.,  "none", 2
+"vert_diff", "ice_watdt_vdif",        "qidt_vdif",          "atmos_month",     "all", .true.,  "none", 2
+
+"moist",     "qi_conv_col",           "qi_conv_col",        "atmos_month",     "all", .true.,  "none", 2
+"moist",     "qi_ls_col",             "qi_ls_col",          "atmos_month",     "all", .true.,  "none", 2

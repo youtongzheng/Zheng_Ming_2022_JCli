@@ -1,0 +1,35 @@
+# ##########################################
+# Extra variables for budget analysis
+# ##########################################
+
+# rain number budgets
+"strat",     "rain_num_evap_col",               "rain_num_evap_col",       "atmos_month",     "all", .true., "none", 2
+"strat",     "rain_num_freez_col",              "rain_num_freez_col",      "atmos_month",     "all", .true., "none", 2
+"strat",     "rain_num2snow_col",               "rain_num2snow_col",       "atmos_month",     "all", .true., "none", 2
+"strat",     "rain_num_selfcoll_col",           "rain_num_selfocll_col",   "atmos_month",     "all", .true., "none", 2
+
+"strat",     "rain_num_inst_col",               "rain_num_inst_col",       "atmos_month",     "all", .true., "none", 2
+"strat",     "rain_num_sedi_col",               "rain_num_sedi_col",       "atmos_month",     "all", .true., "none", 2
+"strat",     "snow_num_melt_col",               "snow_num_melt_col",       "atmos_month",     "all", .true., "none", 2
+"strat",     "rain_num_adj_col",                "rain_num_adj_col",        "atmos_month",     "all", .true., "none", 2
+
+"strat",     "qnr_fill_col",                    "qnr_fill_col",            "atmos_month",     "all", .true., "none", 2
+"strat",     "qnr_destr_col",                   "qnr_destr_col",           "atmos_month",     "all", .true., "none", 2
+
+
+
+"strat",     "rain_num_evap",               "rain_num_evap",       "atmos_month",     "all", .true., "none", 2
+"strat",     "rain_num_freez",              "rain_num_freez",      "atmos_month",     "all", .true., "none", 2
+"strat",     "rain_num2snow",               "rain_num2snow",       "atmos_month",     "all", .true., "none", 2
+"strat",     "rain_num_selfcoll",           "rain_num_selfocll",   "atmos_month",     "all", .true., "none", 2
+
+"strat",     "rain_num_inst",               "rain_num_inst",       "atmos_month",     "all", .true., "none", 2
+"strat",     "rain_num_sedi",               "rain_num_sedi",       "atmos_month",     "all", .true., "none", 2
+"strat",     "snow_num_melt",               "snow_num_melt",       "atmos_month",     "all", .true., "none", 2
+"strat",     "rain_num_adj",                "rain_num_adj",        "atmos_month",     "all", .true., "none", 2
+
+
+"strat",     "qnrdt_fill",                  "qnrdt_fill",          "atmos_month",     "all", .true., "none", 2
+"strat",     "qnrdt_destr",                 "qnrdt_destr",         "atmos_month",     "all", .true., "none", 2
+
+

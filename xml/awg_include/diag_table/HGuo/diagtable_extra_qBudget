@@ -1,0 +1,47 @@
+# ##########################################
+# Extra variables for budget analysis
+# ##########################################
+# for vapor budget
+
+#"strat",     "qldt_cond",                     "qldt_cond",           "atmos_month",     "all", .true., "none", 2
+#"strat",     "qldt_evap",                     "qldt_evap",           "atmos_month",     "all", .true., "none", 2
+#"strat",     "qldt_eros",                     "qldt_eros",           "atmos_month",     "all", .true., "none", 2
+#"strat",     "liq_adj",                       "liq_adj",             "atmos_month",     "all", .true., "none", 2
+#"strat",     "qldt_fill",                     "qldt_fill",           "atmos_month",     "all", .true., "none", 2
+#"strat",     "qldt_destr",                    "qldt_destr",          "atmos_month",     "all", .true., "none", 2
+
+#"strat",     "qidt_dep",                      "qidt_dep",            "atmos_month",     "all", .true., "none", 2
+#"strat",     "qidt_subl",                     "qidt_subl",           "atmos_month",     "all", .true., "none", 2
+#"strat",     "qidt_eros",                     "qidt_eros",           "atmos_month",     "all", .true., "none", 2
+#"strat",     "qidt_fill",                     "qidt_fill",           "atmos_month",     "all", .true., "none", 2
+#"strat",     "qidt_destr",                    "qidt_destr",          "atmos_month",     "all", .true., "none", 2
+
+#"strat",     "qidt_qvdep",                    "qidt_qvdep",          "atmos_month",     "all", .true., "none", 2
+#"strat",     "ice_adj",                       "ice_adj",             "atmos_month",     "all", .true., "none", 2
+
+"strat",     "rain_evap",                       "rain_evap",             "atmos_month",     "all", .true., "none", 2
+"strat",     "qdt_sedi_ice2vapor",              "qdt_sedi_ice2vapor",    "atmos_month",     "all", .true., "none", 2
+"strat",     "qdt_sedi_liquid2vapor",           "qdt_sedi_liquid2vapor", "atmos_month",     "all", .true., "none", 2
+
+#"strat",     "qdt_cleanup_ice",               "qdt_cleanup_ice",     "atmos_month",     "all", .true., "none", 2
+#"strat",     "qdt_cleanup_liquid",            "qdt_cleanup_liquid",  "atmos_month",     "all", .true., "none", 2
+
+"strat",     "qdt_snow_sublim",               "qdt_snow_sublim",     "atmos_month",     "all", .true., "none", 2
+"strat",     "qdt_snow2vapor",                "qdt_snow2vapor",      "atmos_month",     "all", .true., "none", 2
+
+"strat",     "q_sedi_ice2vapor_col",          "q_sedi_ice2vapor_col",    "atmos_month",     "all", .true., "none", 2
+"strat",     "q_sedi_liquid2vapor_col",       "q_sedi_liquid2vapor_col", "atmos_month",     "all", .true., "none", 2
+
+"strat",     "SQ3d",                          "SQ3d",                "atmos_month",     "all", .true., "none", 2
+"strat",     "SQ2d",                          "SQ2d",                "atmos_month",     "all", .true., "none", 2
+
+"atmos",     "sphumdt_dyn",                 "qdt_dyn",            "atmos_month",     "all", .true., "none", 2
+"atmos",     "sphumdt_fv_phys",             "qdt_fv_phys",        "atmos_month",     "all", .true., "none", 2
+"phys",      "sphum_phys",                  "qdt_phys",           "atmos_month",     "all", .true., "none", 2
+"moist",     "qdt_conv",                    "qdt_conv",           "atmos_month",     "all", .true., "none", 2 
+"moist",     "qdt_ls",                      "qdt_ls",             "atmos_month",     "all", .true., "none", 2
+"vert_diff", "sphumdt_vdif",                "qdt_vdif",           "atmos_month",     "all", .true., "none", 2
+
+"moist",     "q_conv_col",                  "q_conv_col",         "atmos_month",     "all", .true., "none", 2 
+"moist",     "q_ls_col",                    "q_ls_col",           "atmos_month",     "all", .true., "none", 2 
+

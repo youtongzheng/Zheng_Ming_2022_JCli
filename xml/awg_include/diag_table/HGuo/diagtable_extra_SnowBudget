@@ -1,0 +1,32 @@
+# ##########################################
+# Extra variables for budget analysis
+# ##########################################
+
+# snow budgets
+"strat",     "snow_imb_col",                  "snow_imb_col",          "atmos_month",     "all", .true., "none", 2
+"strat",     "cld_ice_imb_col",               "cld_ice_imb_col",       "atmos_month",     "all", .true., "none", 2
+"strat",     "sedi_ice",                      "sedi_ice",              "atmos_month",     "all", .true., "none", 2
+
+"strat",     "snow_sedi",                     "snow_sedi",             "atmos_month",     "all", .true., "none", 2
+"strat",     "snow_sedi_col",                 "snow_sedi_col",         "atmos_month",     "all", .true., "none", 2
+
+
+
+#"strat",     "ql_bergs_col",                  "ql_bergs_col",          "atmos_month",     "all", .true., "none", 2
+#"strat",     "ql_accrs_col",                  "ql_accrs_col",          "atmos_month",     "all", .true., "none", 2
+
+#"strat",     "qi_fall_col",                   "qi_fall_col",           "atmos_month",     "all", .true., "none", 2
+
+#"strat",     "qi_auto_col",                   "qi_auto_col",           "atmos_month",     "all", .true., "none", 2
+#"strat",     "qi_accr_col",                   "qi_accr_col",           "atmos_month",     "all", .true., "none", 2
+
+#"strat",     "rain_freez_col",                "rain_freez_col",        "atmos_month",     "all", .true., "none", 2
+#"strat",     "srfrain_accrs_col",             "srfrain_accrs_col",     "atmos_month",     "all", .true., "none", 2
+#"strat",     "srfrain_freez_col",             "srfrain_freez_col",     "atmos_month",     "all", .true., "none", 2
+
+#"strat",     "snow_melt_col",                 "snow_melt_col",         "atmos_month",     "all", .true., "none", 2
+"strat",     "q_snow_sublim_col",             "q_snow_sublim_col",     "atmos_month",     "all", .true., "none", 2
+
+"strat",     "neg_snow",                      "neg_snow",              "atmos_month",     "all", .true., "none", 2
+"strat",     "snow_mass_conv",                "snow_mass_conv",        "atmos_month",     "all", .true., "none", 2
+

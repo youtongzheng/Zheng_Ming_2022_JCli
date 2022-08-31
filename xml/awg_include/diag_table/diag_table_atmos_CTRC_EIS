@@ -1,0 +1,10 @@
+
+"entrain",   "k_rad",           "k_rad",           "atmos_month", "all", .true.,  "none", 2,
+
+"entrain",   "radf",            "radf",            "atmos_month", "all", .true.,  "none", 2,
+
+ "entrain",   "zradml",          "zradml",          "atmos_month", "all", .true.,  "none", 2,
+ "entrain",   "zradtop",         "zradtop",         "atmos_month", "all", .true.,  "none", 2,
+ "entrain",   "zradbase",        "zradbase",        "atmos_month", "all", .true.,  "none", 2,
+ "uw_conv",   "lts_uwc",   "lts_uwc",    "atmos_month", "all", .true., "none", 2
+ "uw_conv",   "eis_uwc",   "eis_uwc",    "atmos_month", "all", .true., "none", 2

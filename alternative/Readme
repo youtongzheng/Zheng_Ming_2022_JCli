@@ -1,0 +1,3 @@
+In the original paper, I use the AM4 COSP data from the default AMIP simulations (1980-2014)in a 2-deg resolution, stored in the GFDL archive.
+
+Alternatively, I run AM4 from 2005 to 2014 to output the COSP data. The result is quite similar, but not exactly the same probably becuase of the effect of the initial conditions (I did not initialize the simulation with 2005 climatology). 

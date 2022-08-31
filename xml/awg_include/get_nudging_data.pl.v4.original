@@ -1,0 +1,563 @@
+#!/usr/bin/perl
+use strict;
+use Getopt::Long;
+
+# Original author: unknown
+my $help = 0;
+my $testMode = 0;
+my $checkMode = 0;
+my $pre_dmget = 0;
+my $remove = 0;
+my $dataset = "NCEP.T63";
+my $datapath;
+my $current_date = "";
+my $current_calendar = "";
+my %runtime = ();
+
+Getopt::Long::Configure("bundling");
+our ($opt_h,$opt_t,$opt_p,$opt_c,$opt_r);
+
+my $result = GetOptions ('h', 'help'   => \$help,
+                         't', 'test'   => \$testMode,
+                         'c', 'check'  => \$checkMode,
+                         'p', 'preget' => \$pre_dmget,
+                         'r', 'remove' => \$remove,
+                         'dataset=s'   => \$dataset,
+                         'runtime=s'   => \%runtime,
+                         'calendar=s'  => \$current_calendar,
+                         'date=s'      => \$current_date);
+
+# usage message
+if ($help || $opt_h || !$result) {
+   print STDERR "
+[1mOVERVIEW[0m
+   Sets up data needed for atmospheric nudging.
+
+[1mUSAGE[0m
+   get_nudging_data.pl [-h,--help] [-t,--test] [-c,--check] [-p,--preget] [-r,--remove] 
+                       [--date=[4mDATE[24m] [--calendar=[4mTYPE[24m] --runtime months|days=[4mNUM[24m --dataset=[4mNAME[24m
+
+   [1m-h, --help[0m
+           this help message and exit
+
+   [1m-p, --preget[0m
+           pre-dmget the data sets needed for the next program execution
+
+   [1m-c, --check[0m
+           print the available dates for the observational data set given by [1m--dataset[0m and exit
+
+   [1m-r, --remove[0m
+           remove un-necessary files from INPUT directory
+
+   [1m--date[0m=[4mDATE[24m
+           current date, required if the coupler restart file does not exist
+           [4mDATE[24m has the form \"YYYY MM DD HH MM SS\"
+
+   [1m--calendar[0m=[4mTYPE[24m
+           type of calendar, required if the coupler restart file does not exist
+           [4mTYPE[24m may be \'julian\', \'gregorian\', \'noleap\', or \'thirty_day\'
+
+   [1m--runtime[0m months=[4mNUM[24m
+           [4mNUM[24m is the run time in months for a model segment
+
+   [1m--runtime[0m days=[4mNUM[24m
+           [4mNUM[24m is the run time in days for a model segment
+
+   [1m--dataset[0m=[4mNAME[24m
+           observational data set name
+           [4mNAME[24m may be \'NCEP.T62\', \'NCEP.T62LR\', \'ECMWF.T62LR\', \'ECMWF.T159\', \'AVN_T85LR\', \'AVN_T382\'
+
+[1mEXAMPLE[0m
+   get_nudging_data.pl --date=\"1980 1 1 0 0 0\" --calendar=julian --runtime months=1 --dataset=NCEP.T62
+\n";
+   exit 1;
+}
+
+### ABOVE lines are probably default.  You don't need to change them ###
+
+# set up data paths:
+
+# Several different datasets can be used for nudged AM3 model.  You may want to obtain your dataset from various 
+# locations.  NCEP_60yr.T62 was processed for the convenience of users so you don't have to make too many changes in 
+# this code. Original data was from /lustre/ltfs/scratch/Larry.Horowitz/archive/lwh/mozart/NCEP_50yr
+# -Ni
+
+if ($dataset eq "NCEP.T62LR" || $dataset eq "NCEP.T62") {
+    $datapath = "/lustre/f1/unswept/Larry.Horowitz/archive/lwh/mozart/NCEP_50yr/"; 
+} elsif ($dataset eq "ECMWF.T62LR" || $dataset eq "ECMWF.T159") {
+    $datapath = "/lustre/f1/unswept/Larry.Horowitz/archive/lwh/mozart/ERA40/"; 
+} elsif ($dataset eq "AVN_T382" || $dataset eq "AVN_T85LR") {
+   $datapath = "/lustre/f1/unswept/Larry.Horowitz/archive/lwh/mozart/AVN_T170/climo/climo.tv/";
+} else {
+   print STDERR "ERROR: Invalid observed data set type.\n";
+   print STDERR "       Available data sets are:\n";
+   print STDERR "       NCEP.T62 NCEP.T62LR ECMWF.T62LR ECMWF.T159 AVN_T85LR AVN_T382\n";
+   exit 1;
+}
+
+# check mode
+# get the date range for the data set type
+# then exit
+if ($checkMode || $opt_c) {
+   my $stat = check_available_files ($dataset,$datapath);
+   exit 0;
+}
+
+# set test mode
+if ($opt_t) {
+   $testMode = 1;
+}
+
+# convert current date to commma delimited format
+if ($current_date ne "") {
+   $current_date =~ s/ /,/g;
+}
+
+# get the current date and run length from the coupler restart
+my ($coupler_date,$coupler_calendar) = get_coupler_res();
+
+if ($coupler_date ne "") {
+   $current_date = $coupler_date;
+   $current_calendar = $coupler_calendar;
+}
+
+# error checks
+if ($current_date eq "") {
+   print STDERR "ERROR: there was no coupler restart so a date argument must be specified\n";
+   exit 1;
+}
+if ($current_calendar eq "") {
+   print STDERR "ERROR: there was no coupler restart so a calendar argument must be specified\n";
+   exit 1;
+}
+
+# determine the run length
+my $runlength = "";
+if (%runtime == 0) {
+   print STDERR "ERROR: runtime argument must be specified\n";
+   exit 1;
+} else {
+   my @runlength = ( 0, 0, 0, 0, 0, 0 );
+   foreach my $key (keys %runtime) {
+      if ($key eq "months") {
+         $runlength[1] = $runtime{$key};
+      } elsif ($key eq "days") {
+         $runlength[2] = $runtime{$key};
+      } else {
+         print STDERR "ERROR: incorrect runtime option\n";
+      }
+   }
+   $runlength = join(",",@runlength);
+}
+my $last_date = increment_date($current_date,$runlength,$current_calendar);
+
+# test mode
+if ($testMode) {
+   print STDERR "start date: $current_date\n";
+   print STDERR "final date: $last_date\n";
+   print STDERR "  calendar: $current_calendar\n\n";
+}
+
+# get the files names needed between these dates
+my @file_names = get_file_names ($current_date,$last_date,$dataset);
+my @file_names2 = get_file_names2 ($current_date,$last_date,$dataset);
+
+# check file name existence
+# terminate if errors were found
+if (check_file_exist ($testMode,$datapath,@file_names)) {
+   exit 1;
+}
+
+# remove files that are not needed
+if ($remove || $opt_r) {
+   my @rm_files = remove_file_list($dataset,@file_names);
+   if (@rm_files) {
+      if (!$testMode) {
+         unlink @rm_files;
+      } else {
+         unlink @rm_files;
+         print STDERR "Removing files not needed: @rm_files\n";
+      }
+   }
+}
+
+# copy files to current directory
+# create a list of files for the data nudging namelist
+#my $standard_output = "";
+foreach my $file (@file_names) {
+#   $standard_output = $standard_output . "\'INPUT/$file\',";
+#   $standard_output = $standard_output . "\$file\',";
+   # only copy files that do not exist
+   if (! -e $file) {
+      if (!$testMode) {
+         my $stat = `cp $datapath$file $file`
+      } else {
+         print STDERR "cp $datapath$file $file\n";
+         my $status = `touch $file`; # create zero byte bogus file for testing
+      }
+   }
+}
+my $standard_output = "";
+#   $standard_output = $standard_output . "\'INPUT/$file\',";
+foreach my $file (@file_names2) {
+   $standard_output = $standard_output . "\'$file\',";
+}
+
+# pre-dmget next set of files
+if ($pre_dmget || $opt_p) {
+   my $next_date = increment_date($last_date,$runlength,$current_calendar);
+   if ($testMode) {
+      print STDERR "next date: $next_date\n";
+   }
+   my @dmfile_names = get_file_names ($last_date,$next_date,$dataset);
+   # proceed if all the files exist
+   if (!check_file_exist ($testMode,$datapath,@dmfile_names)) {
+      # single list of DM files
+      my @dmlist = ();
+      foreach my $dmfile (@dmfile_names) {
+         $dmlist[@dmlist] = $datapath.$dmfile;
+      }
+      # background the dmget
+      if (!$testMode) {
+         system "dmget @dmlist &";
+      } else {
+         print STDERR "pre-dmget @dmlist &\n";
+      }
+   }
+}
+
+# output file list
+# standard output used for the data nuding namelist
+
+#print STDOUT "$standard_output\n";
+foreach my $file (@file_names2) {
+   print STDOUT "\n";
+   print STDOUT "$file";
+   print STDOUT "\n";
+}
+
+#-------- END OF SCRIPT ----------
+##################################
+
+#----- internal functions --------
+
+# returns the current date in the coupler.res restart
+# date is in the form: year,month,day,hour,minute,second
+
+sub get_coupler_res {
+   my $ifile = "coupler.res";
+   my $date = "";
+   my $calendar_number = 0;
+   my @calendars = ("no_calendar", "thirty_day", "julian", "gregorian", "noleap");
+   if (-e $ifile) {
+      my $input;
+      open (LIST,"< $ifile") || die "Cannot open $ifile";
+      my $filesize = `wc -c $ifile | sed -e "s% $ifile%%"`;
+      read (LIST,$input,$filesize);
+      close (LIST);
+      # calendar record
+      $input =~ /^(.*)\(Calendar/m;
+      $calendar_number = $1;
+      $calendar_number =~ s/^\s+//;  # remove leading whitespace
+      $calendar_number =~ s/\s+$//;  # remove trailing whitespace
+      # date record
+      $input =~ /^(.*)Current/m;
+      $date = $1;
+      $date =~ s/^\s+//;  # remove leading whitespace
+      $date =~ s/\s+$//;  # remove trailing whitespace
+      $date =~ s/\s+/,/g; # replace internal whitespace with comma
+   }
+   return ($date,$calendars[$calendar_number]);
+}
+
+# adds a time increment to a starting date
+# both the date and time increment have the form:
+#    year,month,day,hour,minute,second
+# calendar is assumed to be julian
+    
+sub increment_date {
+   my ($start,$incr,$cal) = @_;
+   my ($year,$month,$day,$hour,$min,$sec) = split /,/,$start;
+   my ($dyear,$dmonth,$dday,$dhour,$dmin,$dsec) = split /,/,$incr;
+   # seconds
+   if ($dsec > 0) {
+      $sec = $sec + $dsec;
+   }
+   if ($sec >= 60) {
+      $min = $min + int($sec/60);
+      $sec = $sec - int($sec/60)*60;
+   }
+   # minutes
+   if ($dmin > 0) {
+      $min = $min + $dmin;
+   }
+   if ($min >= 60) {
+      $hour = $hour + int($min/60);
+      $min = $min - int($min/60)*60;
+   }
+   # hours
+   if ($dhour > 0) {
+      $hour = $hour + $dhour;
+   }
+   if ($hour >= 24) {
+      $day = $day + int($hour/24);
+      $hour = $hour - int($hour/24)*24;
+   }
+   # days
+   if ($dday > 0) {
+      $day = $day + $dday;
+   }
+   while ($day > days_per_month($month,$year,$cal)) {
+      $day = $day - days_per_month($month,$year,$cal);
+      $month++;
+      if ($month == 13) {
+         $month = 1;
+         $year++;
+      }
+   }
+   # month
+   if ($dmonth > 0) {
+      $month = $month + $dmonth;
+   }
+   if ($month > 12) {
+      $year = $year + int($month/12);
+      $month = $month - int($month/12)*12;
+   }
+   # year (should not occur)
+   if ($year > 0) {
+      $year = $year + $dyear;
+   }
+   my $newdate = "$year,$month,$day,$hour,$min,$sec";
+   return $newdate;
+}
+
+# returns the number of days in a month
+# currently with limited calendar capability
+
+sub days_per_month {
+   my ($mo,$yr,$cal) = @_;
+   my @mdays = (31,28,31,30,31,30,31,31,30,31,30,31);
+   my $ndays = $mdays[$mo-1];
+   if ($cal eq 'julian' || $cal eq 'gregorian') {
+      if ($mo == 2) {
+         if ($yr%4 == 0) {
+            $ndays++
+         }
+      }
+   } elsif ($cal eq 'thirty_day') {
+      $ndays = 30;
+   } elsif ($cal eq 'noleap'){
+     # do nothing
+   } else {
+      print STDERR "ERROR: invalid calendar type: $cal\n";
+      exit 1;
+   }
+   return $ndays;
+}
+
+# given the starting and ending date and data set type
+# returns a list of needed file names
+# Note: no checks are done on whether a file exists
+
+sub get_file_names {
+   my ($date1,$date2,$datatype) = @_;
+   my ($year1,$month1,$day1,$hour1,$min1,$sec1) = split /,/,$date1;
+   my ($year2,$month2,$day2,$hour2,$min2,$sec2) = split /,/,$date2;
+   my ($ind1,$ind2);
+   if ($datatype eq "ECMWF.T62LR" ||
+       $datatype eq "ECMWF.T159") {
+          $ind1 = set_ncep_index($year1,$month1);
+          $ind2 = set_ncep_index($year2,$month2);
+   } elsif ($datatype eq "NCEP.T62" ||
+            $datatype eq "NCEP.T62LR") {
+          $ind1 = set_ncep_60yr_index($year1,$month1);
+          $ind2 = set_ncep_60yr_index($year2,$month2);
+   } elsif ($datatype eq "AVN_T382" ||
+            $datatype eq "AVN_T85LR") {
+          $ind1 = set_avn_index($year1,$month1,$day1);
+          $ind2 = set_avn_index($year2,$month2,$day2);
+   }
+   my @fname = ();
+   for (my $i=$ind1; $i<=$ind2; $i++) {
+      $fname[@fname] = `printf "$datatype.h%4.4d.nc" $i`;
+   }
+   return @fname;
+}
+
+# given the starting and ending date and data set type
+# returns a list of needed file names
+# Note: no checks are done on whether a file exists
+
+sub get_file_names2 {
+   my ($date1,$date2,$datatype) = @_;
+   my ($year1,$month1,$day1,$hour1,$min1,$sec1) = split /,/,$date1;
+   my ($year2,$month2,$day2,$hour2,$min2,$sec2) = split /,/,$date2;
+   my ($ind1,$ind2);
+   if ($datatype eq "ECMWF.T62LR" ||
+       $datatype eq "ECMWF.T159") {
+          $ind1 = set_ncep_index($year1,$month1);
+          $ind2 = set_ncep_index($year2,$month2);
+   } elsif ($datatype eq "NCEP.T62" ||
+            $datatype eq "NCEP.T62LR") {
+          $ind1 = set_ncep_60yr_index($year1,$month1);
+          $ind2 = set_ncep_60yr_index($year2,$month2);
+   } elsif ($datatype eq "AVN_T382" ||
+            $datatype eq "AVN_T85LR") {
+          $ind1 = set_avn_index($year1,$month1,$day1);
+          $ind2 = set_avn_index($year2,$month2,$day2);
+   }
+   my @fname2 = ();
+   for (my $i=$ind1; $i<=$ind2; $i++) {
+      $fname2[@fname2] = `printf "%4.4d.nc" $i`;
+   }
+   return @fname2;
+}
+
+# check existence of observational files in archive
+# program terminates if a file does not exist
+# returns the number of files that do not exist
+
+sub check_file_exist {
+   my ($test,$datapath,@files) = @_;
+   my $err = 0;
+   foreach (@files) {
+      if (! -e $datapath.$_) {
+         print STDERR "ERROR: observation file does not exist: ".$datapath.$_."\n";
+         $err++;
+      } else {
+         if ($test) {
+            print STDERR "$_\n";
+         }
+      }
+   }
+   return $err;
+}
+
+# remove un-needed observational files
+# saves disk space especially for hi-res data sets
+# returns a list of files that need removed
+
+sub remove_file_list {
+   my ($dataset,@files) = @_;
+   my $noMatch;
+   my @rmfiles = ();
+   # loop thru current files
+   foreach my $file (glob "$dataset.h????.nc") {
+      $noMatch = 1;
+      foreach my $file_needed (@files) {
+         if ($file eq $file_needed) {
+            $noMatch = 0;
+            last;
+         }
+      }
+      if ($noMatch) {
+         $rmfiles[@rmfiles] = $file;
+      }
+   }
+   return @rmfiles;
+}
+
+
+sub check_available_files {
+   my ($datatype,$datapath) = @_;
+   my ($year1,$month1,$day1,$hour1);
+   my ($year2,$month2,$day2,$hour2);
+   # array of the current archive files
+   my @files = glob "$datapath$datatype.h????.nc";
+   my $number1 = substr($files[0],-7,4);
+   my $number2 = substr($files[$#files],-7,4);
+
+   if ($datatype eq "ECMWF.T62LR" ||
+       $datatype eq "ECMWF.T159") {
+          ($year1,$month1,$day1,$hour1) = get_ncep_date($number1,'beg');
+          ($year2,$month2,$day2,$hour2) = get_ncep_date($number2,'end');
+   } elsif ($datatype eq "NCEP.T62" ||
+            $datatype eq "NCEP.T62LR") {
+          ($year1,$month1,$day1,$hour1) = get_ncep_60yr_date($number1,'beg');
+          ($year2,$month2,$day2,$hour2) = get_ncep_60yr_date($number2,'end');
+   } elsif ($datatype eq "AVN_T382" || $datatype eq "AVN_T85LR") {
+          ($year1,$month1,$day1,$hour1) = get_avn_date($number1,'beg');
+          ($year2,$month2,$day2,$hour2) = get_avn_date($number2,'end');
+   }
+   print STDERR "Available Dates\n";
+   print STDERR "  from: $year1/$month1/$day1  $hour1 GMT\n";
+   print STDERR "    to: $year2/$month2/$day2  $hour2 GMT\n";
+   return 0;
+}
+
+sub get_ncep_date {
+   my ($num,$pos) = @_;
+   my ($day,$hour);
+   my $year = 1990 + int(($num-1)/12);
+   my $month = $num % 12;
+   if ($pos eq "beg") {
+      $day = 1;
+      $hour = "00";
+   }
+   if ($pos eq "end") {
+      $day = days_per_month($month,$year,'julian');
+      $hour = "18"; # 6 hourly data
+   }
+   return ($year,$month,$day,$hour);
+}
+
+sub get_ncep_60yr_date {
+   my ($num,$pos) = @_;
+   my ($day,$hour);
+   my $year = 1950 + int(($num-1)/12);
+   my $month = $num % 12;
+   if ($pos eq "beg") {
+      $day = 1;
+      $hour = "00";
+   }
+   if ($pos eq "end") {
+      $day = days_per_month($month,$year,'julian');
+      $hour = "18"; # 6 hourly data
+   }
+   return ($year,$month,$day,$hour);
+}
+
+sub get_avn_date {
+   my ($num,$pos) = @_;
+   my ($day,$hour);
+   my $year = 2000 + int(($num-1)/24);
+   my $month = int((($num%24)+1)/2);
+   if ($pos eq "beg") {
+      if ($num%2 == 1) {
+         $day = 1;
+      } else {
+         $day = 16;
+      }
+      $hour = "00";
+   }
+   if ($pos eq "end") {
+      if ($num%2 == 1) {
+         $day = 15;
+      } else {
+         $day = days_per_month($month,$year,'julian');
+      }
+      $hour = "21"; # 3 hourly data
+   }
+   return ($year,$month,$day,$hour);
+}
+
+sub set_ncep_index {
+   my ($yr,$mo) = @_;
+   my $ind = ($yr-1990)*12 + $mo;
+   return $ind;
+}
+
+sub set_ncep_60yr_index {
+   my ($yr,$mo) = @_;
+   my $ind = ($yr-1950)*12 + $mo;
+   return $ind;
+}
+
+sub set_avn_index {
+   my ($yr,$mo,$dy) = @_;
+   my $ind = ($yr-2000)*24 + $mo*2;
+   if ($dy < 16) {
+      $ind--;
+   }
+   return $ind;
+}

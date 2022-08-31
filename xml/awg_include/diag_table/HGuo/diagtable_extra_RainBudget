@@ -1,0 +1,28 @@
+# ##########################################
+# Extra variables for budget analysis
+# ##########################################
+
+# rain budgets
+"strat",     "rain_evap_col",                 "rain_evap_col",         "atmos_month",     "all", .true., "none", 2
+"strat",     "rain_freeze_col",               "rain_freeze_col",       "atmos_month",     "all", .true., "none", 2
+"strat",     "srfrain_accrs_col",             "srfrain_accrs_col",     "atmos_month",     "all", .true., "none", 2
+
+"strat",     "rain_inst_col",                 "rain_inst_col",         "atmos_month",     "all", .true., "none", 2
+"strat",     "rain_sedi_col",                 "rain_sedi_col",         "atmos_month",     "all", .true., "none", 2
+"strat",     "snow_melt_col",                 "snow_melt_col",         "atmos_month",     "all", .true., "none", 2
+
+"strat",     "qr_fill_col",                   "qr_fill_col",           "atmos_month",     "all", .true., "none", 2
+"strat",     "qr_destr_col",                  "qr_destr_col",          "atmos_month",     "all", .true., "none", 2
+
+
+"strat",     "rain_evap",                    "rain_evap",              "atmos_month",     "all", .true., "none", 2
+"strat",     "srfrain_accrs",                "srfrain_accrs",          "atmos_month",     "all", .true., "none", 2
+"strat",     "srfrain_freez",                "srfrain_freez",          "atmos_month",     "all", .true., "none", 2
+
+"strat",     "rain_inst",                    "rain_inst",              "atmos_month",     "all", .true., "none", 2
+"strat",     "rain_sedi",                    "rain_sedi",              "atmos_month",     "all", .true., "none", 2
+"strat",     "snow_melt",                    "snow_melt",              "atmos_month",     "all", .true., "none", 2
+
+"strat",     "qrdt_fill",                    "qrdt_fill",              "atmos_month",     "all", .true., "none", 2
+"strat",     "qrdt_destr",                   "qrdt_destr",             "atmos_month",     "all", .true., "none", 2
+

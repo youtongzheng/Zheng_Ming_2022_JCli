@@ -1,0 +1,68 @@
+# Simplified diag_table for running AWG AMIP experiments
+
+"grid_spec",            -1, "months",  1, "days", "time",
+"atmos_8xdaily",         3,  "hours",  1, "days", "time",
+# #########
+# grid_spec
+# #########
+
+"dynamics", "grid_lon",  "grid_lon",  "grid_spec", "all", .false.,  "none", 2
+"dynamics", "grid_lat",  "grid_lat",  "grid_spec", "all", .false.,  "none", 2
+"dynamics", "grid_lont", "grid_lont", "grid_spec", "all", .false.,  "none", 2
+"dynamics", "grid_latt", "grid_latt", "grid_spec", "all", .false.,  "none", 2
+"dynamics", "area",      "area",      "grid_spec", "all", .false.,  "none", 2
+"dynamics", "bk",        "bk",        "grid_spec", "all", .false.,  "none", 2
+"dynamics", "pk",        "pk",        "grid_spec", "all", .false.,  "none", 2
+"flux",     "land_mask", "land_mask", "grid_spec", "all", .false.,  "none", 2
+"dynamics", "zsurf",     "zsurf",     "grid_spec", "all", .false.,  "none", 2
+
+# #############
+# atmos_8xdaily
+# #############
+"flux",      "land_mask",                      "land_mask",        "atmos_8xdaily",     "all", .false., "none", 2
+"dynamics",  "zsurf",                          "zsurf",            "atmos_8xdaily",     "all", .false., "none", 2
+"dynamics",  "bk",                             "bk",               "atmos_8xdaily",     "all", .false., "none", 2
+"dynamics",  "pk",                             "pk",               "atmos_8xdaily",     "all", .false., "none", 2
+
+# Variables requested by JM
+# temperature
+ "dynamics",  "temp",                           "temp",             "atmos_8xdaily",     "all", .false.,  "none", 2
+# cloud fraction liquid
+ "dynamics",  "cld_amt",                        "cld_amt",          "atmos_8xdaily",     "all", .false.,  "none", 2
+# cloud fraction ice
+# cloud liquid mass mixing ratio
+ "dynamics",  "liq_wat",                        "liq_wat",          "atmos_8xdaily",     "all", .false.,  "none", 2
+# cloud droplet number concentration mixing ratio
+ "strat",     "droplets",                       "droplets",         "atmos_8xdaily",     "all", .false.,  "none", 2
+# CCN at 0.2
+ "strat",     "potential_droplets",             "potential_droplets",         "atmos_8xdaily",     "all", .false.,  "none", 2
+# omega
+ "dynamics",  "omega",                          "omega",            "atmos_8xdaily",     "all", .false.,  "none", 2
+# surface pressure
+ "dynamics",  "ps",                             "ps",               "atmos_8xdaily",     "all", .false.,  "none", 2
+# surface precipitation
+ "moist",     "precip",                         "precip",           "atmos_8xdaily",     "all", .false.,  "none", 2
+# PBL height
+ "vert_turb", "z_pbl",                          "z_pbl",            "atmos_8xdaily",     "all", .false.,  "none", 2
+# liquid water path
+ "moist",     "LWP",                            "LWP",              "atmos_8xdaily",     "all", .false.,  "none", 2
+# ice water path
+ "moist",     "IWP",                            "IWP",              "atmos_8xdaily",     "all", .false.,  "none", 2
+# u and v at 700 hpa and surface
+ "flux",      "u_ref",                          "u_ref",            "atmos_8xdaily",     "all", .false.,  "none", 2
+ "flux",      "v_ref",                          "v_ref",            "atmos_8xdaily",     "all", .false.,  "none", 2
+"dynamics",      "u700",                          "u700",            "atmos_8xdaily",     "all", .false.,  "none", 2
+"dynamics",      "v700",                          "v700",            "atmos_8xdaily",     "all", .false.,  "none", 2
+# cloud top temperature
+# cloud top CDNC
+# cloud fraction liq
+ "moist",     "tot_liq_amt",                    "tot_liq_amt",      "atmos_8xdaily",     "all", .false.,  "none", 2
+# cloud fraction ice
+ "moist",     "tot_ice_amt",                    "tot_ice_amt",      "atmos_8xdaily",     "all", .false.,  "none", 2
+"cloudrad",  "low_cld_amt",                    "low_cld_amt",      "atmos_8xdaily",     "all", .false.,  "none", 2
+"cloudrad",  "tot_cld_amt",                   "tot_cld_amt",      "atmos_8xdaily",     "all", .false.,  "none", 2
+# MODIS liquid cloud effective radius and optical thickness
+ "cosp",          "lremodis",    "lremodis",    "atmos_8xdaily",        "all",  .false.,  "none", 2
+ "cosp",          "ltaumodis",    "ltaumodis",    "atmos_8xdaily",        "all",  .false.,  "none", 2
+ "cosp",          "lclmodis",    "lclmodis",    "atmos_8xdaily",        "all",  .false.,  "none", 2
+
